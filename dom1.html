@@ -1,0 +1,24 @@
+<html>
+
+<head>
+    <!-- <script src="./customelement.js" ></script> -->
+</head>
+
+<body>
+
+    <cus-ele></cus-ele>
+    <script>
+        class CustomElement extends HTMLElement {
+            constructor() {
+                super();
+                const shadowRoot = this.attachShadow({ mode: 'closed' });
+                let div = document.createElement('div');
+                div.textContent = 'hello world';
+                shadowRoot.append(div);
+            }
+        }
+        window.customElements.define('cus-ele', CustomElement)
+    </script>
+</body>
+
+</html>
