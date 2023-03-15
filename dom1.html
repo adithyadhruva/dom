@@ -2,22 +2,30 @@
 
 <head>
     <!-- <script src="./customelement.js" ></script> -->
-</head>
+</head>  
 
 <body>
-
-    <cus-ele></cus-ele>
+    <custom-input-element >
+        <h2 slot="title">dhruva</h2>
+    </custom-input-element>
     <script>
+        const template=document.createElement('template')
+        template.innerHTML= `
+        hello world
+         <slot name="title"> text not displayed</slot>`
         class CustomElement extends HTMLElement {
             constructor() {
                 super();
-                const shadowRoot = this.attachShadow({ mode: 'closed' });
-                let div = document.createElement('div');
-                div.textContent = 'hello world';
-                shadowRoot.append(div);
+                 const shadowRoot = this.attachShadow({ mode: 'closed' });
+                // let div = document.createElement('div');
+                // div.textContent = 'hello world';
+                // shadowRoot.append(div)
+                let clone=template.content.cloneNode(true)
+                shadowRoot.append(clone)
             }
         }
-        window.customElements.define('cus-ele', CustomElement)
+        window.customElements.define('custom-input-element', CustomElement)
+
     </script>
 </body>
 

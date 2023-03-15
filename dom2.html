@@ -1,0 +1,34 @@
+<html>
+
+<head></head>
+<style>
+    .theame{
+        background-color: blue;
+    }
+</style> 
+
+<body>
+    <custom-mini-details  class="theame" id="abc"></custom-mini-details><br>
+    <custom-mini-details ></custom-mini-details><br>
+    <custom-mini-details ></custom-mini-details>
+    <script>
+        const template = document.createElement('template')
+        template.innerHTML = `
+        <div class="theame">
+            name:<input type="text"><br><br>
+            email:<input type="text"><br><br>
+            address:<input type="text"><br>
+        </div>`
+        class CustomerDetails extends HTMLElement {
+            constructor() {
+                super()
+                const shadowRoot = this.attachShadow({ mode: "closed" })
+                let clone = template.content.cloneNode(true)
+                shadowRoot.append(clone)
+            }
+        }
+        customElements.define('custom-mini-details', CustomerDetails)
+    </script>
+</body>
+
+</html>
