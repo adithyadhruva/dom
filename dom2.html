@@ -1,34 +1,22 @@
 <html>
-
-<head></head>
-<style>
-    .theame{
-        background-color: blue;
-    }
-</style> 
-
+<head>
+    <script src="./dom2.js"></script>
+    <link rel="stylesheet" href="dom2.css">
+</head>
 <body>
-    <custom-mini-details  class="theame" id="abc"></custom-mini-details><br>
-    <custom-mini-details ></custom-mini-details><br>
-    <custom-mini-details ></custom-mini-details>
-    <script>
-        const template = document.createElement('template')
-        template.innerHTML = `
-        <div class="theame">
-            name:<input type="text"><br><br>
-            email:<input type="text"><br><br>
-            address:<input type="text"><br>
-        </div>`
-        class CustomerDetails extends HTMLElement {
-            constructor() {
-                super()
-                const shadowRoot = this.attachShadow({ mode: "closed" })
-                let clone = template.content.cloneNode(true)
-                shadowRoot.append(clone)
-            }
-        }
-        customElements.define('custom-mini-details', CustomerDetails)
-    </script>
+    <div>
+        <custom-mini-details onclick="buttonfunc()"  id="color1" data-color-type="red">
+        </custom-mini-details><br>
+        <p id="btn"></p>
+        <custom-mini-details onclick="colorDetails(this)" id="color2" data-color-type="green">
+        </custom-mini-details><br>
+        <custom-mini-details onclick="colorDetails(this)" id="color3" data-color-type="blue">
+        </custom-mini-details><br>
+    </div>
+    <!-- <script>
+       function buttonfunc() {
+        document.getElementById("btn").innerHTML = "successfully submitted"; 
+      }
+    </script> -->    
 </body>
-
 </html>

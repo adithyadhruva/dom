@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="calendar.css">
+    <title>Calender</title>
+</head>
+
+<body>
+    <style>
+        .chevron-left {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            border-top: 2px solid black;
+            border-right: 2px solid black;
+            transform: rotate(-139deg);
+        }
+
+        header .chevron-left:hover {
+            background-color: #f2f2f2;
+        }
+
+        .chevron-right {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            border-top: 2px solid black;
+            border-right: 2px solid black;
+            transform: rotate(45deg);
+        }
+
+        header .chevron-right:hover {
+            background-color: #f2f2f2;
+        }
+    </style>
+   <div class="container">
+    <div class="wrapper">
+        <header>
+            <div class="chevron-left" id="prev"></div>
+            <p class="current-date"></p>
+            <div class="chevron-right" id="next"></div>
+        </header>
+        <div class="calendar">
+            <ul class="weeks">
+                <li>Sun</li>
+                <li>Mon</li>
+                <li>Tue</li>
+                <li>Wed</li>
+                <li>Thr</li>
+                <li>Fri</li>
+                <li>Sat</li>
+            </ul>
+            <ul class="days">
+            </ul>
+            <button onclick="displayDate() ,displayTime()">Apply</button>
+            <button onclick="clearTextbox()">cancel</button>
+        </div>
+     </div> <br>
+     <div class="wrapper">
+        <div class="created_values">
+           <p>Created values</p>
+           Date:<br>
+           <input   type="text" id="date-field" name="clearText">
+           <p>Use YYYY/MM/DD Format</p>
+           time (GMT+5)
+           <input  type="text" id="timeBox"><br>
+           <p>Use 24hrs Format</p>
+        </div>
+    </div>
+</div>
+    <script src="calendar.js"></script>
+</body>
+</html>

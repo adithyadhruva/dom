@@ -1,0 +1,1876 @@
+<!-- Jai on 2023-Mar-24 15:30:38:pm -->
+<html lang="en" ng-app="app">
+   <head>
+     <meta charset="utf-8" edited header>
+     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+     <meta name="description" content="">
+     <meta name="keywords" content="">
+     <meta name="author" content="MNSP IT team">
+     <link rel="icon" href="/assets/images/favicon.png">
+     <title>Khaam2</title>
+     <script src=" https://www.purtainet.com/assets/js/angular/angular.min.js"></script>
+     <link href=" https://www.purtainet.com/assets/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+     <link href=" https://www.purtainet.com/assets/css/custom.css?v=1.2" rel="stylesheet">
+    
+     <link href=" https://www.purtainet.com/assets/css/reports/reportingpage.css" rel="stylesheet">
+     <link href=" https://www.purtainet.com/assets/css/select/selectize.default.css" rel="stylesheet">
+ 
+     <link href=" https://www.purtainet.com/assets/css/izitoast/iziToast.css" rel="stylesheet">
+     <link href=" https://www.purtainet.com/assets/css/select/select.css" rel="stylesheet">
+     <link href=" https://www.purtainet.com/assets/css/select/selectize.default.css" rel="stylesheet">
+     <script src=" https://www.purtainet.com/assets/js/ui-bootstrap/ui-bootstrap-tpls-3.0.4.min.js"></script>
+     <script src=" https://www.purtainet.com/assets/js/izitoast/iziToast.js"></script>
+     <script src=" https://www.purtainet.com/assets/js/select/select.js"></script>
+     <link href=" https://www.purtainet.com/assets/css/angularjs-movement-picker/angular-moment-picker.min.css" rel="stylesheet">
+     <script src=" https://www.purtainet.com/assets/js/angularjs-movement-picker/moment-with-locales.js"></script>
+     <script src=" https://www.purtainet.com/assets/js/angularjs-movement-picker/angular-moment-picker.min.js"></script>
+     <script src=" https://www.purtainet.com/assets/js/html2canvas/html2canvas.js"></script>
+     
+     <script src=" https://www.purtainet.com/assets/js/pubnub-angular/pubnub-3.15.1.min.js"></script>
+     <script src=" https://www.purtainet.com/assets/js/pubnub-angular/pubnub-angular-3.2.1.min.js"></script>
+ 
+     <script>
+       var app = angular.module('app',[]);
+       var app_path = " https://www.purtainet.com/";
+       
+       app.requires.push('ui.bootstrap');
+       app.requires.push('moment-picker');
+       app.requires.push('pubnub.angular.service');
+       
+       app.service('authInterceptor', function($q,$window){
+       var service = this;
+       service.responseError = function(response){
+         if(response.status == 401)
+           $window.location.reload();
+ 
+         return $q.reject(response);
+       }
+       });
+       function logger(devloper,type,content){
+         console.log("%c"+devloper +"-%c" + type +":",'color:blue','color:red');
+         console.log(content);
+       }
+ 
+       function notify(is_success,message){
+         if(is_success)
+           iziToast.success(
+             {
+               message:message,
+               timeout: 2000,
+               zindex: 3000,
+               progressBar: false,
+               position: 'center'
+             }
+           );
+         else 
+         iziToast.error(
+           {
+             message:message,
+             timeout: 2000,
+             zindex: 3000,
+             progressBar: false,
+             position: 'center'
+           }
+         );
+       }
+      
+       function purta_prompt(question,yes_fn,no_fn){
+         iziToast.question({
+           timeout: 10000,
+           close: false,
+           overlay: true,
+           displayMode: 'once',
+           id: 'question',
+           zindex: 3000,
+           progressBar: false,
+           color: '',
+           message: '<b>'+question+'</b>',
+           position: 'center',
+           buttons: [
+               ['<button>Yes</button>', function (instance, toast) {
+                 instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                 if(yes_fn)
+                     yes_fn();
+               }],
+               ['<button style="color: #dc3545">No</button>', function (instance, toast) {
+                   instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                   if(no_fn)
+                     no_fn();
+                     
+               }, true],
+           ],
+         });
+       }
+       app.directive("fileInput", function($parse){  
+         return{  
+             link: function($scope, element, attrs){  
+                   element.on("change", function(event){  
+                       var files = event.target.files;  
+                       $parse(attrs.fileInput).assign($scope, element[0].files);  
+                       $scope.$apply();  
+                   });  
+             }  
+         }  
+       });
+       app.config(['$httpProvider',function($httpProvider) {
+           $httpProvider.interceptors.push('authInterceptor');
+       }]);
+ 
+       app.factory('server', function($http,$rootScope){
+ 
+         var service = {}; 
+         service.upload = function(url,data,success,error){
+           $http.post(app_path + url+"?format=json",data).then(
+             function(response){
+               success(response);
+             },function(response){
+               if(error)
+                 error(response);         
+           });
+         };
+         service.file_upload = function(url,info,success,error){
+           var form_data = new FormData(); 
+           angular.forEach(info, function(value,key){  
+              var i = 0;
+               if(key == 'files')
+                 angular.forEach(value, function(file){  
+                     form_data.append('file[]', file); 
+                 });
+               else
+                 form_data.append(key, value);
+ 
+               if(key == 'lfiles')
+                 angular.forEach(value, function(file){  
+                     form_data.append('file1[]', file); 
+                 });
+               
+           });
+           
+           $rootScope.ShowLoader = true;
+           $http.post(app_path + url+"?format=json", form_data,  
+            {  
+                 transformRequest: angular.identity,  
+                 headers: {'Content-Type': undefined,'Process-Data': false}  
+            }).then(
+             function(response){
+               success(response);
+               $rootScope.ShowLoader = false;
+             },function(response){
+               error(response);
+               $rootScope.ShowLoader = false;
+           });
+         };
+         return service;
+       });
+   
+   /*Add Cutomer filters here Underscoreless,Captilize,Titlecase and Highlight*/
+ app.filter('underscoreless', function () {
+     return function (input) {
+         return input.replace(/_/g, ' ');
+     };
+   });
+ 
+   app.filter('capitalize', function() {
+     return function(input) {
+       return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
+     }
+   });
+     
+   app.filter('titlecase', function(){
+      return function titleCase(str) {
+          var splitStr = str.toLowerCase().split(' ');
+          for (var i = 0; i < splitStr.length; i++) {
+              splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+          }
+          return splitStr.join(' '); 
+       }
+   })
+   app.filter('highlight', function($sce) {
+     return function(text, phrase) {
+       if (phrase) text = text.replace(new RegExp('('+phrase+')', 'gi'),
+         '<span class="mnsp-bg-light">$1</span>')
+ 
+       return $sce.trustAsHtml(text)
+     }
+   });     </script>
+     
+     <script src=" https://www.purtainet.com/assets/js/header/header.js"></script>
+   </head>
+   <body>
+     <div class="container-fluid" style="margin-top:51px;">
+         <main  role="main">
+           <div class="">
+<link href=" https://www.purtainet.com/assets/css/izitoast/iziToast.css" rel="stylesheet">
+ <link href=" https://www.purtainet.com/assets/css/select/select.css" rel="stylesheet">
+ <link href=" https://www.purtainet.com/assets/css/select/selectize.default.css" rel="stylesheet">
+ <script src=" https://www.purtainet.com/assets/js/ui-bootstrap/ui-bootstrap-tpls-3.0.4.min.js"></script>
+ <script src=" https://www.purtainet.com/assets/js/izitoast/iziToast.js"></script>
+ <script src=" https://www.purtainet.com/assets/js/select/select.js"></script>
+ <link href=" https://www.purtainet.com/assets/css/angularjs-movement-picker/angular-moment-picker.min.css" rel="stylesheet">
+ <script src=" https://www.purtainet.com/assets/js/angularjs-movement-picker/moment-with-locales.js"></script>
+ <script src=" https://www.purtainet.com/assets/js/angularjs-movement-picker/angular-moment-picker.min.js"></script>
+ <link href=" https://www.purtainet.com/assets/css/theme/theme.css" rel="stylesheet">
+ <script>
+     app.requires.push('ui.bootstrap');
+     app.requires.push('ui.select');
+     app.requires.push('moment-picker');
+ </script>
+ 
+<style type="text/css">
+  @media only screen and (min-width: 780px) {
+     .mnsp-tbl-view{
+         display: block;
+     }
+     .mnsp-responsive-view{
+         display: none;
+     }
+   }
+  @media only screen and (max-width: 779px) {
+     .mnsp-tbl-view{
+         display:none;
+     }
+     .mnsp-responsive-view{
+         display: block;
+     }
+ 
+  }
+     .mnsp_context__divider{
+         border-bottom: 1px solid #eeeeee;
+         margin: 10px 0 ;
+     }
+  .filterDiv{
+        left:3px;
+        top:26px;
+        height: 230px;
+        overflow: auto;
+        resize: vertical;
+     }
+    .ulliscroll{
+    overflow: auto;
+    height: 130px;
+    }  .tableExtend{
+  resize: vertical;height: 300px;
+  }
+ #table_divHt{
+                 overflow-y:auto;
+                 padding:0;
+             }
+             .tableFixHead th{
+                 background-color:var(--primary);
+                 position:sticky;
+                 top:0;
+                 overflow:hidden;
+                 z-index: 51;
+             } </style> <div ng-controller="K_acc_group_typeCtrl" class="container-fluid mt-4" ng-click="dismissMenu($index)">
+  <div class="row table-header mnsp-bg-primary">
+  <div class="col-sm-12 col-md-12 mt-1 mnsp-tbl-view m-0">
+        <b class="float-left mt-2">Sample Basic Table</b><span class="float-left mt-2" ng-cloak>( {{totalRecord}} )</span>
+ <button type="button" class="btn btn-outline-light p-1 float-right" data-toggle="title" tooltip="Click Arror to See More Menu" 
+                     ng-click="collapseFun()"> 
+                 <i class="fa fa-angle-double-down pull-right mr-1" ng-cloak ng-show="isCollapsedTable"></i>
+                 <i class="fa fa-angle-double-up pull-right mr-1" ng-hide="isCollapsedTable"></i>
+               </button>      <button class="btn mnsp-btn-outline-primary btn-sm ml-1 mr-1 float-right font-sizes" ng-click="refreshList()" data-toggle="title" tooltip="Add"><i class="fa fa-refresh pt-1 pb-1"></i> </button>
+      <button class="btn mnsp-btn-outline-primary btn-sm ml-2 float-left font-sizes p-1" ng-click="openModal()" data-toggle="title" tooltip="Add" >New...</button>
+      <button class="btn mnsp-btn-outline-primary btn-sm ml-2 float-left" ng-click="showModalList()" data-toggle="title" tooltip="List View" ><i class="fa fa-list pt-1 pb-1"></i></button>
+      <button class="btn mnsp-btn-outline-primary btn-sm ml-2 float-left" ng-click="showModalGrid()" data-toggle="title" tooltip="Grid View" ><i class="fa fa-th pt-1 pb-1"></i></button>
+      <span uib-dropdown on-toggle="toggled(open)" class="p-0 float-left pl-1"  ng-click="$event.stopPropagation()" ng-cloak ng-show="listModalView" >
+          <button uib-dropdown-toggle  class="btn mnsp-btn-outline-secondary btn-sm" data-toggle="title" tooltip="Filters">Filters</button>
+          <ul class="dropdown-menu p-3 filterDiv" uib-dropdown-menu aria-labelledby="simple-dropdown" ng-model="ModelData.items" 
+         >
+              <li><input type="search" placeholder="Search here.." class="form-control" ng-model="selectedFilter"></li>
+              <li class="pt-1"><input type="checkbox" ng-change="changeSelectAll(selectMaster)" ng-model="selectMaster" ng-model="selectMaster" /> Select All</li>
+ <div class="ulliscroll" >              <li ng-repeat="cols in tableColumns | filter:selectedFilter"> 
+                  <input class="mt-1 mr-1"  type="checkbox" ng-model="ModelData[$index]" />{{cols | underscoreless | titlecase}}
+              </li>
+              </div>
+
+          </ul>
+      </span>
+          <div class="col-4 col-sm-1 col-md-1 ml-2 float-left">
+            <input class="form-control page-count mb-1" ng-model="recordsShowing" ng-change="K_acc_group_typechangeRecord()" ng-model-options="{ debounce: 500 }" type="number">
+          </div>
+    </div> <div class="col-12 mt-1 mnsp-responsive-view">
+      <div class="row">
+          <div class="col-6">
+              <b class="float-left mt-2" tooltip-placement="right" uib-tooltip="Sample Basic Table">Sample Ba...</b>
+                  <span class="float-left mt-2" ng-cloak>( {{totalRecord}} )</span>
+              <div class="col-2 float-left">
+                <input class="form-control page-count mb-1" ng-model="recordsShowing" ng-change="changeRecord()" ng-model-options="{ debounce: 500 }" type="number">
+              </div>
+          </div>
+          <div class="col-6">
+              <button type="button" class="btn mnsp-btn-outline-primary p-1 float-right" data-toggle="title" tooltip="Click Arror to See More Menu">  
+                <i class="fa fa-angle-double-down pull-right mr-1 pt-1" ng-cloak ng-show="isCollapsedTable"  ng-click="isCollapsedTable = !isCollapsedTable"></i>
+                <i class="fa fa-angle-double-up pull-right mr-1 pt-1" ng-hide="isCollapsedTable" ng-click="isCollapsedTable = !isCollapsedTable"></i>
+              </button>     
+              <button class="btn mnsp-btn-outline-primary btn-sm ml-1 mr-1 float-right font-sizes" ng-click="refreshList()" data-toggle="title" tooltip="Add" ><i class="fa fa-refresh pt-1 pb-1"></i>
+              </button>
+              <span uib-dropdown on-toggle="toggled(open)" class="p-0 float-right pl-1" ng-click="$event.stopPropagation()" ng-cloak ng-show="listModalView" >
+                        <button uib-dropdown-toggle class="btn mnsp-btn-outline-primary btn-sm ml-1" ><i class="fa fa-ellipsis-v pt-1 pb-1"></i></button>
+                 <ul class="dropdown-menu p-3 filterDiv" uib-dropdown-menu aria-labelledby="simple-dropdown" ng-model="ModelData.items" 
+                     <li class="pt-1 pointer" ng-click="openModal()">New...</li>
+                     <li class="mnsp_context__divider"></li>
+                     <li><input type="search" placeholder="Search here.." class="form-control" ng-model="selectedFilter"></li>
+                     <li class="pt-1"><input type="checkbox" ng-change="changeSelectAll(selectMaster)" ng-model="selectMaster" /> Select All</li>
+ <div class="ulliscroll" >
+                     <li ng-repeat="cols in tableColumns | filter:selectedFilter">
+                        <input class="mt-1 mr-1" type="checkbox" ng-model="ModelData[$index]" />{{cols | underscoreless | titlecase}}
+                      </li>
+                      </div>
+                 </ul>
+              </span>
+          </div>
+      </div>
+  </div>
+  </div> <div class="row mnsp-border-primary table-header" uib-collapse="isCollapsedTable">
+          <div class="col-12 col-sm-4 col-md-4 float-left mt-2 mb-2">
+              <ul uib-pagination  total-items="K_acc_group_typeTotalItems" items-per-page="itemsPerPage" ng-model="CurrentPage" max-size="maxpageSize" class="table-pagination pagination-sm" ng-change="K_acc_group_typepageChanged()" boundary-link-numbers="true" previous-text="‹" next-text="›" rotate="false" ng-cloak ng-show="paginationShow"></ul>
+          </div>
+          <div class="col-sm-2 col-md-2 mb-2 float-left">
+ <select class="form-control" ng-model="deletedRecord" ng-change="recChange(deletedRecord)">
+                              <option value = "yes">Removed</option>
+                              <option value = "no">Existing</option>
+                              <option value = "both">All</option>
+                          </select>
+          </div>
+          <div class="col-12 col-sm-6 col-md-6 mt-2 mb-2">
+              <div class="input-group"> 
+                  <div class="input-group-append">
+                      <select class="form-control" ng-model="selectedColumn">
+                          <option ng-repeat="item in tableColumns" value="{{item}}">{{item | underscoreless | titlecase}}</option>
+                      </select>
+                  </div>   
+                  <input type="search" placeholder="Search here.." class="form-control pt-2"
+                  ng-keypress="GotoMyFunction($event,'globalSearch')" ng-model="K_acc_group_typeselectedKey">
+                  <div class="input-group-append">
+                      <div class="input-group-text mnsp-bg-primary pointer" ng-click="searchSelected(selectedColumn,selectedKey)" data-toggle="title" tooltip="Search">
+                          <i class="fa fa-search"></i>
+                      </div>
+                  </div>
+              </div>      
+          </div>
+   </div> <div class="row mt-2" width="100" >
+        <div class="col-sm-12 col-md-12  mnsp-tbl-view table-responsive pl-0" ng-clock ng-show="listModalView" id="table_divHt" 
+            style="resize: vertical;height: 300px;">
+            <table class="table table-striped " >
+              <thead class="second-theme-color tableFixHead">
+                <tr class="text-center">
+                  <th class="text-center">View</th>
+                  <th ng-repeat="cols in tableColumns" ng-cloak ng-show="ModelData[$index]">
+                       <a ng-click="toggleSort()" class="tableheaderLink">{{ cols | underscoreless | titlecase  }}
+                         <span ng-show="sortColumn == '{{ cols }}' && !reverse"><i class="fa fa-arrow-down" aria-hidden="true"></i></span>
+                         <span ng-show="sortColumn == '{{ cols }}' && reverse"><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
+                      </a><br>
+                    <input class="tableSearch form-control" type="text" placeholder="" name="search" ng-model="search[cols]">
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in resultValue = ( K_acc_group_typetableData  | orderBy:sortColumn:reverse |  filter: search )" >
+                  <td  >
+                    <button class="btn mnsp-btn-outline-primary btn-sm" ng-click="openModal()"><i class="fa fa-ellipsis-v"></i></button>
+                  </td>
+                  <td class="tableDesc text-center" ng-repeat="cols in tableColumns" ng-model="items" ng-cloak ng-show="ModelData[$index]">
+                      <span>{{item[cols]}}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        </div> <div class="col-12 mnsp-responsive-view pl-3 pr-5 " ng-cloak ng-show="listModalView" >
+              <div class="row mt-1" ng-repeat="item in K_acc_group_typetableData">
+                 <div class="col-12 p-0">
+                  <div class=" mnsp-border container-fluid">
+                    <div class="row">
+                      <div class=" pt-1 pb-1 col-5 mnsp-bg-primary">
+                          <p class="mb-0"><b>SlNo </b></p>
+                      </div>
+                      <div class="pt-1 pb-1 col-7 mnsp-bg-primary">
+                          <div class="pull-left">
+                            <p class="mb-0"> : {{$index + 1}}</p>
+                          </div>
+                          <div class="pull-right">
+                              <button class="btn mnsp-btn-outline-secondary btn-xs" ng-click="openModal()"><i class="fa fa-ellipsis-v"></i></button>
+                          </div>
+                      </div>
+                    </div>  
+                    <div class="row" ng-repeat="cols in tableColumns">
+                      <div class=" mnsp-border-top pt-1 pb-1 col-5" >
+                          <p class="mb-0"><b>{{cols}}</b></p>
+                      </div>
+                      <div  class=" mnsp-border-top pt-1 pb-1 col-7">
+                          <p class="mb-0"> : {{item[cols]}}</p>
+                      </div>
+                    </div>
+                  </div>
+                 </div>
+              </div>
+              </div> <div ng-cloak ng-show="gridModalView" style="width:100%;" class="ml-3">
+                      <div class="row table-header">
+                        <div class="col-12 col-sm-12 col-md-12">
+                          <div class="row mt-1" ng-repeat="item in K_acc_group_typetableData">
+                             <div class="col-12 p-0">
+                              <div class="mnsp-border container-fluid">
+                                <div class="row">
+                                  <div class=" pt-1 pb-1 col-5 mnsp-bg-primary">
+                                      <p class="mb-0"><b>SlNo </b></p>
+                                  </div>
+                                  <div class="pt-1 pb-1 col-7 mnsp-bg-primary">
+                                      <div class="pull-left">
+                                        <p class="mb-0"> : {{$index + 1}}</p>
+                                      </div>
+                                      <div class="pull-right">
+                                          <button class="btn mnsp-btn-outline-secondary btn-xs" ng-click="openModal()"><i class="fa fa-ellipsis-v"></i></button>
+                                      </div>
+                                  </div>
+                                </div>  
+                                <div class="row" ng-repeat="cols in tableColumns">
+                                  <div class=" mnsp-border-top pt-1 pb-1 col-5" >
+                                      <p class="mb-0"><b>{{cols}}</b></p>
+                                  </div>
+                                  <div  class=" mnsp-border-top pt-1 pb-1 col-7">
+                                      <p class="mb-0"> : {{item[cols]}}</p>
+                                  </div>
+                                </div>
+                              </div>
+                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>           
+                  </div>
+             </div>
+             </div>
+             </div>
+             </div><script language="javascript" type="text/javascript">
+ 
+             var sidebar = document.getElementById("table_divHt");
+             sidebar.style.height = window.innerHeight - (45 + 100+ 80)+ "px";
+              
+             window.onresize = function() {
+                var sidebar = document.getElementById("table_divHt");
+                sidebar.style.height = window.innerHeight - (45 + 100+ 80)+ "px";
+             }
+         </script>
+ <script>
+     app.controller("K_acc_group_typeCtrl",['$scope','server','$uibModal','$rootScope',function($scope,server,$uibModal,$rootScope)
+     {
+         $scope.openModal= function(x){
+                 console.log("testing")
+         }
+         $scope.isCollapsedTable = false;
+         $scope.totalRecord = 1;
+ $scope.filterRepeats = {};
+  
+          if($rootScope.is_access == "View" || $rootScope.is_access == "Add")
+          {
+             $scope.viewOpt = true;
+             $scope.editOpt = false;
+             $scope.delOpt = false;
+          }
+          else if($rootScope.is_access == "Edit")
+          {
+             $scope.viewOpt = true;
+             $scope.editOpt = true;
+             $scope.delOpt = false;
+          }
+          else if($rootScope.is_access == "Delete")
+          {
+             $scope.viewOpt = true;
+             $scope.editOpt = true;
+             $scope.delOpt = true;
+          }
+ 
+     $scope.defaultCheckbox = {};
+ $scope.collapseFun = function(){
+ 
+                  if($scope.isCollapsedTable == true){
+                      var sidebar = document.getElementById("table_divHt");
+                      sidebar.style.height = window.innerHeight - (45 + 100+ 80)+ "px";
+ 
+                      window.onresize = function() {
+                          var sidebar = document.getElementById("table_divHt");
+                          sidebar.style.height = window.innerHeight - (45 + 100+ 80)+ "px";
+                      };
+                  }
+                  else{
+                      var sidebar = document.getElementById("table_divHt");
+                      sidebar.style.height = window.innerHeight - (45 + 79 + 30)+ "px";
+ 
+                      window.onresize = function() {
+                          var sidebar = document.getElementById("table_divHt");
+                          sidebar.style.height = window.innerHeight - (45 + 79 + 30)+ "px";
+                      };
+                  }
+                  this.isCollapsedTable = !this.isCollapsedTable;
+                 $scope.saveViewSettings();
+              }
+ $scope.GotoMyFunction = function (t,goto_callback)
+             {
+                 if (event.which === 13) 
+                 {
+                     if(goto_callback === 'globalSearch')
+                     {
+                         $scope.searchSelected();
+                     }
+                 }
+             }
+   $scope.filterRepeats = [
+     {name : "code", id : 'id_code', default : true, multiple : 'and'},
+     {name : "slno", id : 'id_slno', default : true, multiple : 'and'},
+     {name : 'empid', id : 'id_empid', default : true, multiple : 'and'},
+     {name : 'name', id : 'id_name', default : true, multiple : 'and'},
+     {name : 'designation', id : 'id_designation', default : true, multiple : 'and'},
+     {name : 'phno', id : 'id_phno', default : true, multiple : 'and'},
+     {name : 'emailid', id : 'id_emailid', default : true, multiple : 'and'},
+     {name : 'created_by'},
+     {name : 'created_at'},
+     {name : 'updated_by'},
+     {name : 'updated_at'},
+     {name : 'edit', default : true}
+ ];
+ angular.forEach($scope.filterRepeats,function(value,key){
+            if(value.default)
+            {
+              $scope.defaultCheckbox[value.name] = true;
+            }
+          });
+ $scope.ModelData = [];
+          angular.forEach($scope.filterRepeats,function(value,key){
+             $scope.ModelData[key] = true;
+          });
+ 
+ 
+ $scope.rowHighlight = function(num)
+           {
+               $scope.selectedtblRow = num;
+           }
+ 
+ 
+           $scope.K_acc_group_typetableData = [
+             {
+               "code": "mnsp",
+               "slno": "mnsp",
+               "empid": "mnsp",
+               "name": "mnsp",
+               "designation": "mnsp",
+               "phno": "mnsp",
+               "emailid": "mnsp",
+               "created_by": "mnsp",
+               "updated_by": "mnsp",
+               "created_at": "mnsp",
+               "updated_at": "mnsp"
+             }
+           ]
+ 
+ 
+ $scope.tableColumns = Object.keys($scope.K_acc_group_typetableData[0]); 
+ $scope.changeSelectAll = function(type)
+         {  
+ //start this below code to be used for auto
+             angular.forEach($scope.filterRepeats,function(value,key){
+                 if(type == true)
+                 {
+                     $scope.ModelData[key] = true;
+                 }
+                 else
+                 {
+                     $scope.ModelData[key] = false;
+                 }
+             });
+ //end this  code to be used for auto 
+ //start this  code to be used for Static
+ $scope.defaultCheckbox['code'] = type;
+ $scope.defaultCheckbox['slno'] = type;
+ $scope.defaultCheckbox['empid'] = type;
+ $scope.defaultCheckbox['name'] = type;
+ $scope.defaultCheckbox['designation'] = type;
+ $scope.defaultCheckbox['phno'] = type;
+ $scope.defaultCheckbox['emailid'] = type;
+ $scope.defaultCheckbox['created_by'] = type;
+              $scope.defaultCheckbox['created_at'] = type;
+              $scope.defaultCheckbox['updated_by'] = type;
+              $scope.defaultCheckbox['updated_at'] = type;
+              $scope.defaultCheckbox['edit'] = type;
+ //end this  code to be used for Static
+             $scope.saveViewSettings();
+         }
+
+         $scope.listModalView = true;
+         $scope.gridModalView = false;
+         $scope.showModalList = function(){
+             $scope.listModalView = true;
+             $scope.gridModalView = false;
+             $scope.saveViewSettings();
+         }
+         $scope.showModalGrid = function(){
+             $scope.gridModalView = true;
+             $scope.listModalView = false;
+             $scope.saveViewSettings();
+         }
+       
+         $scope.recordsShowing = 25;
+         $scope.itemsperPage = 25;
+         $scope.maxpageSize = 5;
+         $scope.CurrentPage = 1;
+         $scope.sr = 0;
+         $scope.er = $scope.recordsShowing;
+         $scope.K_acc_group_typeselectedSearch = "";
+         $scope.selectedColumn =$scope.filterRepeats[0].name;
+         $scope.frmDate =""
+         $scope.toDate =""
+         $scope.deletedRecord = "0";
+ 
+ 
+         $scope.viwData = {
+             view_code : "",
+             view_description : "SDLC Design View",
+             records_showing : "",
+             filters : "",
+             column_value : "",
+             list_view : true,
+             grid_view : false,
+             options_collapse : false,
+         }
+ 
+         $scope.vsData = {
+             user_id  : "",
+             QgSDBZ : "",
+             view_data : $scope.viwData
+         }
+ 
+           var Details = {}; // Need to remove this 
+ 
+           if(Details)
+           {
+               $scope.viewCode = Details.view_code;
+           }
+         $scope.saveViewSettings = function()
+         {
+             if($scope.viewCode)
+             {
+                 $scope.viwData.view_code = $scope.viewCode;
+             }
+             
+             if($scope.recordsShowing)
+             {
+                 $scope.viwData.records_showing = $scope.recordsShowing;
+             }
+             
+             if($rootScope.currentProjectCode)
+             {
+                 $scope.vsData.QgSDBZ = $rootScope.currentProjectCode;
+             }
+             
+             if($rootScope.currentUserEmail)
+             {
+                 $scope.vsData.user_id = $rootScope.currentUserEmail;
+             }
+             
+             if($scope.defaultCheckbox)
+             {
+                 $scope.viwData.filters = $scope.defaultCheckbox;
+             }
+             
+             if($scope.selectedColumn)
+             {
+                 $scope.viwData.column_value = $scope.selectedColumn;
+             }
+             
+             $scope.viwData.list_view = $scope.listModalView;
+             $scope.viwData.grid_view = $scope.gridModalView;
+             
+             $scope.viwData.options_collapse = $scope.isCollapsedTable;
+             
+             if($scope.viwData.view_code && $scope.vsData.QgSDBZ && $scope.vsData.user_id)
+             {
+                 $rootScope.ShowLoader = true;
+                 
+                 server.upload("profiles_api/save_view_settings",$scope.vsData,function(response){
+                     if(response.data.success == true)
+                     {
+                         if(response.data.content.Result)
+                         {
+                             $rootScope.ShowLoader = false;
+                         }
+                         else
+                         {
+                             $rootScope.ShowLoader = false;
+                             notify(false,response.data.content.Message);
+                         }
+                     }
+                     else
+                     {
+                         $rootScope.ShowLoader = false;
+                     }
+                 },function(data){
+                     $rootScope.ShowLoader = false;
+                 });
+             }
+             else
+             {
+             notify(true,"Unable to save default settings.!!");
+             }
+         }
+ 
+         $scope.changeFilter = function(name,type)
+         {
+             $scope.defaultCheckbox[name] = type;
+             $scope.saveViewSettings();
+         }
+ 
+         $scope.K_acc_group_typeloadModalList = function(data){
+             $rootScope.ShowLoader = true;
+             server.upload("K_acc_group_type_api/get_lists_K_acc_group_type",data,function(response){
+                 if(response.data.success === true){
+                     if(response.data.content.Result == true){
+                         $rootScope.ShowLoader = false;
+                         $scope.K_acc_group_typetableData = response.data.content.Data.list;
+                         $scope.tableColumns = Object.keys($scope.K_acc_group_typetableData[0]);
+                         if($scope.K_acc_group_typetableData){
+                             if($scope.K_acc_group_typetableData.length >= $scope.recordsShowing){
+                                 $scope.K_acc_group_typeshowPagination = true;
+                             }
+                         }
+                         if($scope.K_acc_group_typetableData){
+                             $scope.K_acc_group_typeTotalItems = response.data.content.rec_count;
+                         }
+                         $scope.showMessage = false;
+                     }
+                     else{
+                         $rootScope.ShowLoader = false;
+                         notify(false,response.data.content.Message);
+                         $scope.errorListMsg = response.data.content.Message;
+                         $scope.K_acc_group_typetableData = ''
+                         $scope.showMessage = true;
+                     }
+                 }
+                 else{
+                     $rootScope.ShowLoader = false;
+                     notify(false,"Server is not processing the Request. Please Try Again .!");
+                 }
+             },function(data){
+                 $rootScope.ShowLoader = false;
+                 notify(false,"Server is not responding .Please try again.!");
+             });
+         }
+ 
+         $scope.par = {
+             fromdate : $scope.frmDate,
+             todate : $scope.toDate,
+             is_deleted : $scope.deletedRecord,
+             starting_record : $scope.sr,
+             no_of_records : $scope.er,
+             search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+         };
+ 
+         $scope.getViewSettings = function(type)
+         {
+             $scope.gtData = {
+                 user_id : $rootScope.currentUserEmail,
+                 QgSDBZ :  $rootScope.currentProjectCode,
+                 view_code : $scope.viewCode
+             }
+ 
+             server.upload("profiles_api/get_view_settings",$scope.gtData,function(response){
+                 if(response.data.success == true)
+                 {
+                     if(response.data.content.Result)
+                     {
+                         $rootScope.ShowLoader = false;
+                         $scope.viewSettingsData = response.data.content.Data;
+ 
+                         if($scope.viewSettingsData)
+                         {
+                             if($scope.viewSettingsData.filters)
+                             {
+                                 $scope.savedFilters = $scope.viewSettingsData.filters;
+                                 angular.forEach($scope.filterRepeats,function(value,key){
+                                     if(value.default)
+                                     {
+                                         $scope.defaultCheckbox[value.name] = false;
+                                     }
+                                 });
+                             }
+                            if($scope.savedFilters.empid == '1')
+                            {
+                               $scope.defaultCheckbox['empid'] = true;
+                            }
+ 
+                            if($scope.savedFilters.name == '1')
+                            {
+                               $scope.defaultCheckbox['name'] = true;
+                            }
+ 
+                            if($scope.savedFilters.designation == '1')
+                            {
+                               $scope.defaultCheckbox['designation'] = true;
+                            }
+ 
+                            if($scope.savedFilters.phno == '1')
+                            {
+                               $scope.defaultCheckbox['phno'] = true;
+                            }
+ 
+                            if($scope.savedFilters.emailid == '1')
+                            {
+                               $scope.defaultCheckbox['emailid'] = true;
+                            }
+ 
+                             if($scope.savedFilters.created_by == '1')
+                             {
+                                 $scope.defaultCheckbox['created_by'] = true;
+                             }
+ 
+                             if($scope.savedFilters.edit == '1')
+                             {
+                                 $scope.defaultCheckbox['edit'] = true;
+                             }
+ 
+                             if($scope.savedFilters.created_at == '1')
+                             {
+                                 $scope.defaultCheckbox['created_at'] = true;
+                             }
+ 
+                             if($scope.savedFilters.updated_by == '1')
+                             {
+                                 $scope.defaultCheckbox['updated_by'] = true;
+                             }
+ 
+                             if($scope.savedFilters.updated_at == '1')
+                             {
+                                 $scope.defaultCheckbox['updated_at'] = true;
+                             }
+ 
+                             if($scope.viewSettingsData.column_value)
+                             {
+                                 $scope.selectedColumn = $scope.viewSettingsData.column_value;
+                             }
+ 
+                             if($scope.viewSettingsData.grid_view == '1')
+                             {
+                                 $scope.gridModalView = true;
+                                 $scope.listModalView = false;
+                             }
+ 
+                             if($scope.viewSettingsData.list_view == '1')
+                             {
+                                 $scope.listModalView = true;
+                                 $scope.gridModalView = false;
+                             }
+ 
+                             if($scope.viewSettingsData.options_collapse == '1')
+                             {
+                                 $scope.isCollapsedTable = true;
+                             }
+ 
+                             if($scope.viewSettingsData.records_showing)
+                             {
+                                 $scope.recordsShowing = parseInt($scope.viewSettingsData.records_showing);
+                                 $scope.er = $scope.recordsShowing;
+                             }
+ 
+                             $scope.par = {
+                                 starting_record : $scope.sr,
+                                 no_of_records : $scope.er,
+                                 key : $scope.K_acc_group_typeselectedSearch,
+                                 column : $scope.selectedColumn
+                             };
+                             $scope.K_acc_group_typeloadModalList($scope.par);
+                         }
+                         else
+                         {
+                             $scope.K_acc_group_typeloadModalList($scope.par);
+                         }
+                     }
+                     else
+                     {
+                     $rootScope.ShowLoader = false;
+                     $scope.K_acc_group_typeloadModalList($scope.par);
+                     }
+                 }
+                 else
+                 {
+                     $rootScope.ShowLoader = false;
+                     $scope.K_acc_group_typeloadModalList($scope.par);
+                 }
+             },function(data){
+                 $rootScope.ShowLoader = false;
+                 $scope.K_acc_group_typeloadModalList($scope.par);
+             });
+         }
+ 
+         $scope.$watch('currentProjectCode', function(newVal, oldVal){
+             if($rootScope.currentProjectCode)
+             {
+                 if($rootScope.fyStartYear)
+                 {
+                     $scope.frmDate = $rootScope.fyStartYear + "-" + $rootScope.fyStartMonth + "-" + $rootScope.fyStartDay;
+                 }
+                 if($rootScope.fyEndYear)
+                 {
+                     $scope.toDate = $rootScope.fyEndYear + "-" + $rootScope.fyEndMonth + "-" + $rootScope.fyEndDay;
+                 }
+ 
+                 $scope.getViewSettings();
+             }
+         }, true);
+ 
+         $scope.searchSelected = function(){
+             $scope.par = {
+                 fromdate : $scope.frmDate,
+                 todate : $scope.toDate,
+                 is_deleted : $scope.deletedRecord,
+                 starting_record : $scope.sr,
+                 no_of_records : $scope.er,
+                 search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+             };
+             $scope.K_acc_group_typeloadModalList($scope.par);
+             $scope.saveViewSettings();
+         }
+       
+         $scope.recChange = function(){
+             $scope.par = {
+                 fromdate : $scope.frmDate,
+                 todate : $scope.toDate,
+                 is_deleted : $scope.deletedRecord,
+                 starting_record : $scope.sr,
+                 no_of_records : $scope.er,
+                 search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+             };
+             $scope.K_acc_group_typeloadModalList($scope.par);
+          };
+        $scope.refreshList = function()
+        {
+         $scope.searchSelected()
+        }
+         $scope.K_acc_group_typechangeRecord = function(){
+             if($scope.recordsShowing > 0)
+             {
+                 $scope.sr = 0;
+                 $scope.er = $scope.recordsShowing;
+                 $scope.par = {
+                     fromdate : $scope.frmDate,
+                     todate : $scope.toDate,
+                     is_deleted : $scope.deletedRecord,
+                     starting_record : $scope.sr,
+                     no_of_records : $scope.er,
+                     search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                 };
+                 $scope.K_acc_group_typeloadModalList($scope.par);
+                 $scope.saveViewSettings();
+             }
+         }
+       
+         $scope.K_acc_group_typepageChanged = function() {
+             if($scope.CurrentPage > 1){
+                 $scope.sr = ($scope.CurrentPage * $scope.er) - $scope.er;
+                 $scope.er = $scope.er;
+                 $scope.par = {
+                     fromdate : $scope.frmDate,
+                     todate : $scope.toDate,
+                     is_deleted : $scope.deletedRecord,
+                     starting_record : $scope.sr,
+                     no_of_records : $scope.er,
+                     search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                 };
+                 $scope.K_acc_group_typeloadModalList($scope.par);
+             }
+             else if($scope.CurrentPage === 1){
+                 $scope.sr = 0;
+                 $scope.er = $scope.recordsShowing;
+                 $scope.par = {
+                     fromdate : $scope.frmDate,
+                     todate : $scope.toDate,
+                     is_deleted : $scope.deletedRecord,
+                     starting_record : $scope.sr,
+                     no_of_records : $scope.er,
+                     search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                 };
+                 $scope.K_acc_group_typeloadModalList($scope.par);
+             }
+             else{
+                 $scope.sr = $scope.sr - $scope.er;
+                 $scope.er = $scope.recordsShowing;
+                 $scope.par = {
+                     fromdate : $scope.frmDate,
+                     todate : $scope.toDate,
+                     is_deleted : $scope.deletedRecord,
+                     starting_record : $scope.sr,
+                     no_of_records : $scope.er,
+                     search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                 };
+                 $scope.K_acc_group_typeloadModalList($scope.par);
+             }
+         };
+       
+        $scope.deleteK_acc_group_typeRecord = function(code,type)
+        {
+            if(type == '1')
+            {
+                 $scope.qstn = 'Do you want to delete.?';
+            }else
+            {
+                 $scope.qstn = 'Do you want to undelete.?';
+            }
+           purta_prompt($scope.qstn,function(){
+               $rootScope.ShowLoader = true;
+                 server.upload("K_acc_group_type_api/delete_K_acc_group_type",{ code : code, is_deleted : type },function(response){
+                    if(response.data.success === true){
+                        if(response.data.content.Result == true){
+                            $rootScope.ShowLoader = false;
+                            notify(true,response.data.content.Message);
+                            $scope.K_acc_group_typeloadModalList($scope.par);
+                        }
+                        else{
+                            $rootScope.ShowLoader = false;
+                            notify(false,response.data.content.Message);
+                            $scope.K_acc_group_typeloadModalList($scope.par);
+                        }
+                    }
+                    else{
+                        $rootScope.ShowLoader = false;
+                        notify(false,"Server is not processing the Request. Please Try Again .!");
+                    }
+                },function(data){
+                    $rootScope.ShowLoader = false;
+                    notify(false,"Server is not responding .Please try again.!");
+                });
+            });
+        }
+         $scope.openK_acc_group_typeModal = function(operation,code)
+         {
+             $uibModal.open({
+                 templateUrl: "newK_acc_group_typeModel.html",
+                 controller: "newK_acc_group_typeModelctrl",
+                 backdrop: 'static',
+                 scope: $scope,
+                 keyboard: false,
+                 size:'lg',
+                 resolve:{
+                     items: function() {
+                         return {
+                             operation : operation,
+                             code : code
+                         };  
+                     }
+                 }
+             }).result.catch(function(res) {
+                 if (!(res === 'cancel' || res === 'escape key press')) {
+                 }
+             });
+         }
+ 
+ $scope.callFunction = function(func,opt,data)
+              {
+                 if(opt.Enable == true)
+                 {
+                     if(func == "view")
+                    {
+                       $scope.openK_acc_group_typeModal('view',data.code);
+                    }
+                    else if(func == "edit")
+                    {
+                       $scope.openK_acc_group_typeModal('edit',data.code);
+                    }
+                    else if(func == "delete")
+                    {
+                       $scope.deleteK_acc_group_typeRecord(data.code,'1');
+                    }
+                    else if(func == "undelete")
+                    {
+                       $scope.deleteK_acc_group_typeRecord(data.code,'0');
+                    }
+                 }
+                  
+             $scope.dismissMenu();
+              }
+ 
+              $scope.tableRow = [];
+ 
+             $scope.tblArrMen=[];
+             $scope.toggleTableMenu = function(item,index)
+              {
+            $scope.selectedtblRow = index;
+                 $scope.tblArrMen.push(index);
+ 
+                 if($scope.tblArrMen[0] == $scope.tblArrMen[1])
+                 {
+                   item.menutoggle = !item.menutoggle;
+                   $scope.tableRow.menutoggle = true;
+                   $scope.tblArrMen = [];
+                 }
+                 else if($scope.tblArrMen[1] == index)
+                 {
+                   item.menutoggle = !item.menutoggle;
+                   $scope.tableRow.menutoggle = false;
+                   $scope.tblArrMen = [];
+                 }
+                 else
+                 {
+                   item.menutoggle = !item.menutoggle;
+                   $scope.tableRow.menutoggle = false;
+                 }
+ 
+                 $scope.tableRow = {};
+                 $scope.tableRow = item;
+              }
+ $scope.toggleGridMenu = function(item,index)
+              {
+                  $scope.tblArrMen.push(index);
+                  
+                  if($scope.tblArrMen[0] == $scope.tblArrMen[1])
+                  {
+                    item.menugridtoggle = !item.menugridtoggle;
+                    $scope.tableRow.menugridtoggle = true;
+                    $scope.tblArrMen = [];
+                  }
+                  else if($scope.tblArrMen[1] == index)
+                  {
+                    item.menugridtoggle = !item.menugridtoggle;
+                    $scope.tableRow.menugridtoggle = false;
+                    $scope.tblArrMen = [];
+                  }
+                  else
+                  {
+                    item.menugridtoggle = !item.menugridtoggle;
+                    $scope.tableRow.menugridtoggle = false;
+                  }
+ 
+                  $scope.tableRow = {};
+                  $scope.tableRow = item; 
+              }
+              $scope.dismissMenu = function()
+              {
+                 $scope.tableRow.menutoggle = false;
+                 $scope.tableRow.menugridtoggle = false;
+              }
+ 
+               $scope.menuOpt = [
+                 { 
+                   icon: 'fa fa-eye', 
+                   MenuName: 'View',    
+                   MenuIcon: '', 
+                   MoreMenu: '',    
+                   Selected: '',   
+                   PlanOfAction: 'view',
+                   Enable: $scope.viewOpt,
+                   Visible: $scope.viewOpt,
+                   MoreMenuDet: {},
+                   class_menu : "mnsp-bg-hover-light",
+                   id : "",
+                   parentId :"",
+                   tooltip : "View Record",
+                   divider : true,
+                   display_value : ""
+                 },
+                 { 
+                   icon: 'fa fa-pencil', 
+                   MenuName: 'Edit',    
+                   MenuIcon: '', 
+                   MoreMenu: '',    
+                   Selected: '',   
+                   PlanOfAction: 'edit',
+                   Enable: $scope.editOpt,
+                   Visible: $scope.editOpt,
+                   MoreMenuDet: {},
+                   class_menu : "mnsp-bg-hover-light",
+                   id : "",
+                   parentId :"",
+                   tooltip : "Edit Record",
+                   divider : true,
+                   display_value : ""
+                 },
+                 { 
+                   icon: 'fa fa-trash', 
+                   MenuName: 'Delete',    
+                   MenuIcon: '', 
+                   MoreMenu: '',    
+                   Selected: '',   
+                   PlanOfAction: 'delete',
+                   Enable: $scope.delOpt,
+                   Visible: $scope.delOpt,
+                   MoreMenuDet: {},
+                   class_menu : "mnsp-bg-hover-light",
+                   id : "",
+                   parentId :"",
+                   tooltip : "Delete Record",
+                   divider : false,
+                   display_value : "1"
+                 },
+                 { 
+                   icon: 'fa fa-info', 
+                   MenuName: 'Undelete',    
+                   MenuIcon: '', 
+                   MoreMenu: '',    
+                   Selected: '',   
+                   PlanOfAction: 'undelete',
+                   Enable: $scope.delOpt,
+                   Visible: $scope.delOpt,
+                   MoreMenuDet: {},
+                   class_menu : "mnsp-bg-hover-light",
+                   id : "",
+                   parentId :"",
+                   tooltip : "Undelete Record",
+                   divider : false,
+                   display_value : "0"
+                 }
+               ]
+     }]);
+ </script>
+<script type="text/ng-template" id="newK_acc_group_typeModel.html">
+ <div class="modal-header pl-2 pr-1 pt-1 pb-1 mnsp-bg-primary">
+     <div class="row full-width pb-1">
+         <div class="col-6">
+             <p class="mb-0 text-light" >New Model <span class="pl-3" ng-cloak ng-show="createdBy">Created By : {{createdBy}} - {{createdAt}}</span></p>
+         </div>
+         <div class="col-6 panel-header-btns pr-0">
+             <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2 pull-right" ng-click="cancel()"><i class="fa fa-remove"></i></button>
+             <span uib-dropdown on-toggle="toggled(open)" class="p-0 pull-right pl-1" ng-click="$event.stopPropagation()" >
+                 <button uib-dropdown-toggle  class="btn btn-outline-light pt-1 pb-1 pl-2 pr-2 btn-sm" data-toggle="title" tooltip="Filters"><i class="fa fa-ellipsis-v" ></i></button>
+                 <ul class="dropdown-menu filterDiv mnsp_mdl_options" style="right:0;left:auto;width:200px;" uib-dropdown-menu aria-labelledby="simple-dropdown" >
+                   <li class="p-1 mnsp-bg-hover-light pointer" ng-click="openReportBugs()"><span><i class="fa fa-comment-o"></i></span> Feedback</li>
+                 </ul>
+             </span>
+             <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2 pull-right" id="minimizebutton" style="display: none;" onclick="minimize()"><i class="fa fa-window-restore" aria-hidden="true"></i></button>
+             <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2 pull-right" id="maximizebutton" style="display: block;" onclick="maximize()"><i class="fa fa-window-maximize" aria-hidden="true"></i></button>
+             <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2 pull-right" ng-click="refreshModal()"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+            <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2 mr-1 pull-right" data-toggle="tooltip"title="Edit row" ng-click="editButton()" ng-if="is_access == 'Edit' || is_access == 'Delete'" aria-hidden="true" ng-cloak ng-show="defaultCode">   <i class="fa fa-pencil" aria-hidden="true"></i> </button>
+            <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2" data-toggle="tooltip" title="Delete Row" ng-click="K_acc_group_typedelete('1')" ng-if="is_access == 'Delete' && currentRecDelete == '0'" aria-hidden="true" ng-cloak ng-show="defaultCode"> <i class="fa fa-trash" aria-hidden="true"></i> </button>
+            <button class="btn btn-sm btn-outline-light pt-1 pb-1 pl-2 pr-2" data-toggle="tooltip" title="Undelete Row" ng-click="K_acc_group_typedelete('0')" ng-if="is_access == 'Delete' && currentRecDelete == '1'" aria-hidden="true" ng-cloak ng-show="defaultCode"> Undelete </button>
+         </div>
+     </div>
+ </div>
+ <form name="frm_K_acc_group_type">
+     <div class="modal-body" id="modal-body">
+         <fieldset class="mnsp-field-set">
+             <legend class="mnsp-legend mnsp-bg-tertiary">Input Form</legend>
+            <div class="row full-width">
+        <div class="form-group col-12 mt-2">
+            <div ng-cloak ng-show="frm_K_acc_group_type.empid.$error.required" class="alert alert-danger" ng-if="frm_K_acc_group_type.empid.$touched || signupSubmitted">
+                <span class="help-block alert-danger">Empid Required........</span>
+            </div>
+            <label for="empid">Empid <span class="pl-2" style="color: red">*</span></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text mnsp-bg-primary mnsp-border-primary"><i class="fa fa-info" aria-hidden="true"></i></div>
+                </div>
+                <input type="text" onkeypress="focusColor(this.id)" ng-disabled="isDisabled" class="form-control mnsp-border-primary" autocomplete="off" data-toggle="tooltip" title=" Enter Empid" placeholder="Enter Empid" ng-model="frmdata_K_acc_group_type.empid" name="empid" id="empid" required >
+            </div>
+        </div>
+        <div class="form-group col-12 mt-2">
+            <div ng-cloak ng-show="frm_K_acc_group_type.name.$error.required" class="alert alert-danger" ng-if="frm_K_acc_group_type.name.$touched || signupSubmitted">
+                <span class="help-block alert-danger">Name Required........</span>
+            </div>
+            <label for="name">Name <span class="pl-2" style="color: red">*</span></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text mnsp-bg-primary mnsp-border-primary"><i class="fa fa-info" aria-hidden="true"></i></div>
+                </div>
+                <textarea rows="3" onkeypress="focusColor(this.id)" ng-disabled="isDisabled" class="form-control mnsp-border-primary" autocomplete="off" data-toggle="tooltip" title=" Enter Name" placeholder="Enter Name" ng-model="frmdata_K_acc_group_type.name" name="name" id="name" required >
+</textarea>            </div>
+        </div>
+        <div class="form-group col-12 mt-2">
+            <div ng-cloak ng-show="frm_K_acc_group_type.designation.$error.required" class="alert alert-danger" ng-if="frm_K_acc_group_type.designation.$touched || signupSubmitted">
+                <span class="help-block alert-danger">Designation Required........</span>
+            </div>
+            <label for="designation">Designation <span class="pl-2" style="color: red">*</span></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text mnsp-bg-primary mnsp-border-primary"><i class="fa fa-info" aria-hidden="true"></i></div>
+                </div>
+                <textarea rows="3" onkeypress="focusColor(this.id)" ng-disabled="isDisabled" class="form-control mnsp-border-primary" autocomplete="off" data-toggle="tooltip" title=" Enter Designation" placeholder="Enter Designation" ng-model="frmdata_K_acc_group_type.designation" name="designation" id="designation" required >
+</textarea>            </div>
+        </div>
+        <div class="form-group col-12 mt-2">
+            <div ng-cloak ng-show="frm_K_acc_group_type.phno.$error.required" class="alert alert-danger" ng-if="frm_K_acc_group_type.phno.$touched || signupSubmitted">
+                <span class="help-block alert-danger">Phno Required........</span>
+            </div>
+            <label for="phno">Phno <span class="pl-2" style="color: red">*</span></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text mnsp-bg-primary mnsp-border-primary"><i class="fa fa-info" aria-hidden="true"></i></div>
+                </div>
+                <input type="text" onkeypress="focusColor(this.id)" ng-disabled="isDisabled" class="form-control mnsp-border-primary" autocomplete="off" data-toggle="tooltip" title=" Enter Phno" placeholder="Enter Phno" ng-model="frmdata_K_acc_group_type.phno" name="phno" id="phno" required >
+            </div>
+        </div>
+        <div class="form-group col-12 mt-2">
+            <div ng-cloak ng-show="frm_K_acc_group_type.emailid.$error.required" class="alert alert-danger" ng-if="frm_K_acc_group_type.emailid.$touched || signupSubmitted">
+                <span class="help-block alert-danger">Emailid Required........</span>
+            </div>
+            <label for="emailid">Emailid <span class="pl-2" style="color: red">*</span></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text mnsp-bg-primary mnsp-border-primary"><i class="fa fa-info" aria-hidden="true"></i></div>
+                </div>
+                <input type="text" onkeypress="focusColor(this.id)" ng-disabled="isDisabled" class="form-control mnsp-border-primary" autocomplete="off" data-toggle="tooltip" title=" Enter Emailid" placeholder="Enter Emailid" ng-model="frmdata_K_acc_group_type.emailid" name="emailid" id="emailid" required >
+            </div>
+        </div>
+             </div>
+         </fieldset>
+     </div>
+ </form>
+     <div class="modal-footer mnsp-bg-primary pt-1 pl-1 pr-1 pb-1" style="display:block;">
+         <button class="btn btn-sm btn-outline-light pull-left" ng-if="is_access == 'Add' || is_access == 'Edit' ||is_access == 'Delete'" id="K_acc_group_type_newId" ng-click="K_acc_group_typeNew()"> New</button>
+         <span class="btn btn-sm btn-outline-light pull-right ml-1 mr-1" ng-click="cancel()">Close</span>
+         <p class="mb-0" ng-if="updatedBy">Updated By : {{updatedBy}} - {{updatedAt}}</p>
+         <span ng-if="showMainButtons"><button class="btn btn-sm btn-outline-light pull-right" ng-if="is_access == 'Add' || is_access == 'Edit' ||is_access == 'Delete'" ng-disabled="frm_K_acc_group_type.$error.required || K_acc_group_typedisableSave" ng-click="K_acc_group_typeSave()" ng-hide="K_acc_group_typehideSave"><i class="fa fa-spinner fa-spin" ng-cloak ng-show="K_acc_group_typeshowspinner"></i> Save</button>
+         <button class="btn btn-sm btn-outline-light pull-right" ng-if="is_access == 'Edit' || is_access == 'Delete'" ng-disabled="K_acc_group_typedisableUpdate" ng-click="K_acc_group_typeupdate()" ng-cloak ng-show="K_acc_group_typehideSave"><i class="fa fa-spinner fa-spin" ng-cloak ng-show="K_acc_group_typeshowspinner"></i> Update</button></span>
+     </div> 
+ </script>
+<script>
+     app.controller("newK_acc_group_typeModelctrl",['$scope','$rootScope','server','$uibModalInstance','items',function($scope,$rootScope,server,$uibModalInstance,items){
+         var oldValue = {};
+         var newValue = {};
+         $scope.K_acc_group_typedelete =false;
+ $scope.editButton = function()
+    {    
+      var editmsg = confirm("Do you want to Edit ?");
+      if(editmsg == true)
+      {
+         $scope.disableUpdateButton = false;
+         $scope.isDisabled = false;
+         $scope.showMainButtons = true;
+      }
+    }
+         $scope.dismiss = function()
+         {
+             $uibModalInstance.close();
+         }
+       
+         $scope.frmdata_K_acc_group_type = {};
+       
+         $scope.K_acc_group_typeSaveData = {
+             empid : "",
+             name : "",
+             designation : "",
+             phno : "",
+             emailid : "",
+ 
+         }
+         $scope.validate={};
+         $scope.validate.permit = ['empid','name','designation','phno','emailid'];
+         var valid = $scope.validate.permit;
+         $scope.K_acc_group_typeUpdateData = {
+             code : "",
+             empid : "",
+             name : "",
+             designation : "",
+             phno : "",
+             emailid : "",
+         }
+       
+        $scope.K_acc_group_typeNew = function()
+         {
+            $scope.frmdata_K_acc_group_type = {}
+             var divsToHide = document.getElementsByClassName("alert alert-danger");
+             for(var j = 0; j < divsToHide.length; j++){
+                divsToHide[j].style.visibility = "hidden";
+                divsToHide[j].style.display = "none"; 
+             }
+            
+            $scope.defaultCode = "";
+            $scope.showMainButtons = true;
+            $scope.isDisabled = false;
+            $scope.K_acc_group_typehideSave = false;
+         }
+       
+         if(items.code)
+         {
+             $scope.defaultCode = items.code;
+         }
+       
+       
+         if($scope.defaultCode == undefined)
+         {
+             $scope.showMainButtons = true;
+             $scope.K_acc_group_typesave_api = function(){
+               
+                 if($scope.frmdata_K_acc_group_type.empid)
+                 {
+                     $scope.K_acc_group_typeSaveData.empid = $scope.frmdata_K_acc_group_type.empid;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.name)
+                 {
+                     $scope.K_acc_group_typeSaveData.name = $scope.frmdata_K_acc_group_type.name;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.designation)
+                 {
+                     $scope.K_acc_group_typeSaveData.designation = $scope.frmdata_K_acc_group_type.designation;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.phno)
+                 {
+                     $scope.K_acc_group_typeSaveData.phno = $scope.frmdata_K_acc_group_type.phno;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.emailid)
+                 {
+                     $scope.K_acc_group_typeSaveData.emailid = $scope.frmdata_K_acc_group_type.emailid;
+                 }
+ 
+                if( $scope.K_acc_group_typeSaveData.empid != "" && $scope.K_acc_group_typeSaveData.name != "" && $scope.K_acc_group_typeSaveData.designation != "" && $scope.K_acc_group_typeSaveData.phno != "" && $scope.K_acc_group_typeSaveData.emailid != "" )
+                 {
+ 
+                  purta_prompt("Do you want to create ?",function(){
+                      $scope.K_acc_group_typeshowspinner = true;
+                      $scope.K_acc_group_typedisableSave = true;
+                      $rootScope.ShowLoader = true;
+                      server.upload("K_acc_group_type_api/create_K_acc_group_type",$scope.K_acc_group_typeSaveData,function(response){
+                          if(response.data.success === true){
+                              if(response.data.content.Result == true){
+                                  $scope.K_acc_group_typeshowspinner = false;
+                                  $rootScope.ShowLoader = false;
+                                     $scope.par = {
+                                         fromdate : $scope.frmDate,
+                                         todate : $scope.toDate,
+                                         is_deleted : $scope.deletedRecord,
+                                         starting_record : $scope.sr,
+                                         no_of_records : $scope.er,
+                                        search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                                    };
+                                  $scope.K_acc_group_typeloadModalList($scope.par);
+                                  $uibModalInstance.close();
+                                  notify(true,response.data.content.Message);
+                              }
+                              else{
+                                  $rootScope.ShowLoader = false;
+                                  $scope.K_acc_group_typedisableSave = false;
+                                  $scope.K_acc_group_typeshowspinner = false;
+                                  notify(false,response.data.content.Message);
+                                     $scope.par = {
+                                         fromdate : $scope.frmDate,
+                                         todate : $scope.toDate,
+                                         is_deleted : $scope.deletedRecord,
+                                         starting_record : $scope.sr,
+                                         no_of_records : $scope.er,
+                                        search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                                    };
+                                  $scope.K_acc_group_typeloadModalList($scope.par);
+                              }
+                          }
+                          else{
+                              $rootScope.ShowLoader = false;
+                              notify(false,"Server is not processing the Request. Please Try Again .!");
+                              $scope.K_acc_group_typedisableSave = false;
+                          }
+                      },function(data){
+                          $rootScope.ShowLoader = false;
+                          notify(false,"Server is not responding .Please try again.!");
+                      });
+                  });
+              }
+              else
+                 {
+                     $scope.K_acc_group_typeshowspinner = false;
+                  $scope.K_acc_group_typedisableSave = false;
+                  $rootScope.ShowLoader = false;
+                     notify(false,"Please fill all the required fields.!");
+                 }
+             }
+         }
+         else
+         {
+              if(items.operation)
+              {
+                 $scope.K_acc_group_typeoperation = items.operation;
+                  if($scope.K_acc_group_typeoperation == 'edit')
+                  {
+                    $scope.isDisabled = false;
+                    $scope.showMainButtons = true;
+                  }
+                  else
+                  {
+                    $scope.isDisabled = true;
+                    $scope.showMainButtons = false;
+                  }
+              }
+ 
+             $scope.K_acc_group_typedelete =true;
+             $scope.K_acc_group_typehideSave = true;
+             $scope.K_acc_group_typesetData = function()
+             {
+                 $rootScope.ShowLoader = true;
+                 server.upload("K_acc_group_type_api/get_lists_bycode_K_acc_group_type",{ code : $scope.defaultCode },function(response){
+                     if(response.data.success === true){
+                         if(response.data.content.Result == true){
+                             $scope.K_acc_group_typeshowspinner = false;
+                             $rootScope.ShowLoader = false;
+ 
+                           
+                             $scope.frmdata_K_acc_group_type.empid = response.data.content.Data.list.empid;
+                             $scope.frmdata_K_acc_group_type.name = response.data.content.Data.list.name;
+                             $scope.frmdata_K_acc_group_type.designation = response.data.content.Data.list.designation;
+                             $scope.frmdata_K_acc_group_type.phno = response.data.content.Data.list.phno;
+                             $scope.frmdata_K_acc_group_type.emailid = response.data.content.Data.list.emailid;
+                             oldValue = {
+                                value0:$scope.frmdata_K_acc_group_type.empid,
+                                value1:$scope.frmdata_K_acc_group_type.name,
+                                value2:$scope.frmdata_K_acc_group_type.designation,
+                                value3:$scope.frmdata_K_acc_group_type.phno,
+                                value4:$scope.frmdata_K_acc_group_type.emailid,
+                             }; 
+                             $scope.currentRecDelete = response.data.content.Data.list.is_deleted;
+ 
+                             $scope.createdBy = response.data.content.Data.list.created_by;
+                             $scope.createdAt = response.data.content.Data.list.created_at;
+                             $scope.updatedBy = response.data.content.Data.list.updated_by;
+                             $scope.updatedAt = response.data.content.Data.list.updated_at;
+                         }
+                         else{
+                             $rootScope.ShowLoader = false;
+                             notify(false,response.data.content.Message);
+ 
+                         }
+                     }
+                     else{
+                         $rootScope.ShowLoader = false;
+                         notify(false,"Server is not processing the Request. Please Try Again .!");
+                         $scope.K_acc_group_typeloadModalList($scope.par);
+                     }
+                 },function(data){
+                     $rootScope.ShowLoader = false;
+                     notify(false,"Server is not responding .Please try again.!");
+                 });
+             }
+           
+             $scope.K_acc_group_typesetData()
+             $scope.refreshModal = function()
+             {
+                 $scope.K_acc_group_typesetData();
+             }
+ 
+             $scope.K_acc_group_typeupdate_api = function(){
+ 
+        $scope.K_acc_group_typedisableSave = false;
+                 if($scope.defaultCode)
+                 {
+                     $scope.K_acc_group_typeUpdateData.code = $scope.defaultCode;
+                 }
+ 
+                 
+ 
+                 if($scope.frmdata_K_acc_group_type.empid)
+                 {
+                     $scope.K_acc_group_typeUpdateData.empid = $scope.frmdata_K_acc_group_type.empid;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.name)
+                 {
+                     $scope.K_acc_group_typeUpdateData.name = $scope.frmdata_K_acc_group_type.name;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.designation)
+                 {
+                     $scope.K_acc_group_typeUpdateData.designation = $scope.frmdata_K_acc_group_type.designation;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.phno)
+                 {
+                     $scope.K_acc_group_typeUpdateData.phno = $scope.frmdata_K_acc_group_type.phno;
+                 }
+ 
+                 if($scope.frmdata_K_acc_group_type.emailid)
+                 {
+                     $scope.K_acc_group_typeUpdateData.emailid = $scope.frmdata_K_acc_group_type.emailid;
+                 }
+ 
+ 
+                 if( $scope.K_acc_group_typeUpdateData.empid != "" && $scope.K_acc_group_typeUpdateData.name != "" && $scope.K_acc_group_typeUpdateData.designation != "" && $scope.K_acc_group_typeUpdateData.phno != "" && $scope.K_acc_group_typeUpdateData.emailid != "" )
+                 {
+ 
+                     purta_prompt("Do you want to update.?",function(){
+                         $scope.K_acc_group_typeshowspinner = true;
+                         $scope.K_acc_group_typedisableUpdate = true;
+                         $rootScope.ShowLoader = true;
+                         server.upload("K_acc_group_type_api/update_K_acc_group_type",$scope.K_acc_group_typeUpdateData,function(response){
+                             if(response.data.success === true){
+                                 if(response.data.content.Result == true){
+                                     $scope.K_acc_group_typeshowspinner = false;
+                                     $rootScope.ShowLoader = false;
+                                     $scope.K_acc_group_typedisableUpdate = false;
+                                      $scope.par = {
+                                         fromdate : $scope.frmDate,
+                                         todate : $scope.toDate,
+                                         is_deleted : $scope.deletedRecord,
+                                         starting_record : $scope.sr,
+                                         no_of_records : $scope.er,
+                                        search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                                      };
+                                     $scope.K_acc_group_typeloadModalList($scope.par);
+                                     $scope.K_acc_group_typehideSave = false;
+                                     $uibModalInstance.close();
+                                     notify(true,response.data.content.Message);
+                                 }
+                                 else{
+                                     $rootScope.ShowLoader = false;
+                                     notify(false,response.data.content.Message);
+                                     $scope.K_acc_group_typedisableUpdate = false;
+                                     $scope.K_acc_group_typeshowspinner = false;
+                                 }
+                             }
+                             else{
+                                 $rootScope.ShowLoader = false;
+                                 notify(false,"Server is not processing the Request. Please Try Again .!");
+                                 $scope.K_acc_group_typeloadModalList($scope.par);
+                             }
+                         },function(data){
+                             $rootScope.ShowLoader = false;
+                             notify(false,"Server is not responding .Please try again.!");
+                         });
+                     });
+                 }
+                 else
+                 {
+                     $scope.K_acc_group_typeshowspinner = false;
+                     $scope.K_acc_group_typedisableUpdate = false;
+                     $rootScope.ShowLoader = false;
+                     notify(false,"Please fill all the required fields.!");
+                 }
+             }
+         }
+          $scope.updateK_acc_group_typecall=function(){
+            newValue = {                              
+                   value0:$scope.frmdata_K_acc_group_type.empid,
+                   value1:$scope.frmdata_K_acc_group_type.name,
+                   value2:$scope.frmdata_K_acc_group_type.designation,
+                   value3:$scope.frmdata_K_acc_group_type.phno,
+                   value4:$scope.frmdata_K_acc_group_type.emailid,
+                       };
+        if(JSON.stringify(oldValue) !== JSON.stringify(newValue))
+        {  
+              $scope.K_acc_group_typeupdate_api();
+        }
+        else
+        {
+            notify(false,"No Changes Done");
+        }
+          }
+        $scope.K_acc_group_typeupdate=function(){
+              //For validation 
+              var flag = true;
+              for(var k in valid){
+               if(document.getElementById(valid[k]).value == "" || document.getElementById(valid[k]).value == undefined){
+ 
+                 $scope.errormsg = true;
+                 document.getElementById(valid[k]).focus();
+                  var divsToHide = document.getElementsByClassName("alert alert-danger");
+                  for(var j = 0; j < divsToHide.length; j++){
+                      divsToHide[j].style.visibility = "visible";
+                      divsToHide[j].style.display = "block"; 
+                  }
+            
+                 flag = false;
+                 break;
+               }else{  
+                 document.getElementById(valid[k]).style.background = "";          
+               }
+             }
+ 
+             if(flag){
+               // api cal
+               $scope.updateK_acc_group_typecall();
+             }  
+            }
+         $scope.K_acc_group_typedelete = function(type){
+            if(type == '1')
+            {
+                 $scope.qstn = 'Do you want to delete.?';
+            }else
+            {
+                 $scope.qstn = 'Do you want to undelete.?';
+            }
+             purta_prompt($scope.qstn,function(){
+                 $rootScope.ShowLoader = true;
+                 server.upload("K_acc_group_type_api/delete_K_acc_group_type",{ code : $scope.defaultCode },function(response){
+                     if(response.data.success === true){
+                         if(response.data.content.Result == true){
+                             $rootScope.ShowLoader = false;
+                             notify(true,response.data.content.Message);
+                              $scope.par = {
+                                   fromdate : $scope.frmDate,
+                                   todate : $scope.toDate,
+                                   is_deleted : $scope.deletedRecord,
+                                   starting_record : $scope.sr,
+                                   no_of_records : $scope.er,
+                                   search: [{"incolumn": $scope.selectedColumn,"keyword": $scope.K_acc_group_typeselectedSearch,"matchingtype": "","moreless": ""}],
+                               };
+                             $scope.K_acc_group_typeloadModalList($scope.par);
+                         }
+                         else{
+                             $rootScope.ShowLoader = false;
+                             notify(false,response.data.content.Message);
+                         }
+                     }
+                     else{
+                         $rootScope.ShowLoader = false;
+                         notify(false,"Server is not processing the Request. Please Try Again .!");
+                     }
+                 },function(data){
+                     $rootScope.ShowLoader = false;
+                     notify(false,"Server is not responding .Please try again.!");
+                 });
+             });
+         }
+       
+ 
+                   document.onkeydown = function(evt) {
+                         $scope.dummy = "modal-open";
+                         evt = evt || window.event ;
+                         if (evt.keyCode == 27 && evt.path[1].className == $scope.dummy) {
+                             $scope.cancel();
+                         }
+                     };
+ $scope.cancel = function()
+ { 
+    newValue = {
+       value0:$scope.frmdata_K_acc_group_type.empid,
+       value1:$scope.frmdata_K_acc_group_type.name,
+       value2:$scope.frmdata_K_acc_group_type.designation,
+       value3:$scope.frmdata_K_acc_group_type.phno,
+       value4:$scope.frmdata_K_acc_group_type.emailid,
+      };
+     var modify = JSON.stringify(oldValue) !== JSON.stringify(newValue);
+ 
+     if(modify == true){
+       purta_prompt("Do you want to close ?",function()
+       {
+         $uibModalInstance.dismiss('cancel');
+       });
+     }else{
+       $uibModalInstance.dismiss('cancel');
+     }
+ }
+ $scope.K_acc_group_typeSave = function(){
+ //For validation 
+              var flag = true;
+              for(var k in valid){
+               if(document.getElementById(valid[k]).value == "" || document.getElementById(valid[k]).value == undefined){
+ 
+                 $scope.errormsg = true;
+                 document.getElementById(valid[k]).focus();
+                  var divsToHide = document.getElementsByClassName("alert alert-danger");
+                  for(var j = 0; j < divsToHide.length; j++){
+                      divsToHide[j].style.visibility = "visible";
+                      divsToHide[j].style.display = "block"; 
+                  }
+            
+                 flag = false;
+                 break;
+               }else{  
+                 document.getElementById(valid[k]).style.background = "";          
+               }
+             }
+ 
+             if(flag){
+               // api cal
+               $scope.showspinner = false;
+               $scope.K_acc_group_typedisableSave = false;
+               $scope.K_acc_group_typesave_api();
+             }  
+            }
+     }]);
+ </script>
+    
+ <script type="text/javascript">
+     function maximize()
+     {
+         document.getElementById("minimizebutton").style.display='block';
+         document.getElementById("maximizebutton").style.display='none';
+ 
+         var modalD = document.getElementsByClassName("modal-dialog");
+         var modalContent = document.getElementsByClassName("modal-content");
+         var modalBody = document.getElementsByClassName("modal-body");
+       
+         modalD[0].classList.add("mnsp-uib-modal-dialog");
+         modalD[0].classList.remove("modal-dialog");
+         modalContent[0].classList.add("mnsp-uib-modal-content");
+         modalContent[0].classList.remove("modal-dialog");
+         modalBody[0].classList.add("mnsp-uib-model-body");
+         
+         var modalUibBody = document.getElementsByClassName("mnsp-uib-model-body");
+         var modalheight = window.innerHeight;
+         var newHeight = modalheight-80;
+       
+         modalBody[0].style.height = newHeight +"px";
+     }
+ 
+     function minimize()
+     {
+         document.getElementById("minimizebutton").style.display='none';
+         document.getElementById("maximizebutton").style.display='block';
+ 
+         var modalD = document.getElementsByClassName("mnsp-uib-modal-dialog");
+         var modalContent = document.getElementsByClassName("mnsp-uib-modal-content");
+         var modalBody = document.getElementsByClassName("modal-body");
+       
+         var modalUibBody = document.getElementsByClassName("mnsp-uib-model-body");
+       
+         modalUibBody[0].style.height = "500px";
+ 
+         modalD[0].classList.add("modal-dialog");
+         modalD[0].classList.remove("mnsp-uib-modal-dialog");
+         modalContent[0].classList.add("modal-dialog");
+         modalContent[0].classList.remove("mnsp-uib-modal-content");
+       
+         modalBody[0].classList.remove("mnsp-uib-model-body");
+ 
+     }
+ 
+ </script>
+ <script>
+       app.directive('modalMovable', ['$document',
+             function($document) {
+                 return {
+                     restrict: 'AC',
+                     link: function(scope, iElement, iAttrs) {
+                         var startX = 0,
+                             startY = 0,
+                             x = 0,
+                             y = 0;
+ 
+                         var dialogWrapper = iElement.parent();
+ 
+                         dialogWrapper.css({
+                             position: 'relative'
+                         });
+ 
+                         dialogWrapper.on('mousedown', function(event) {
+                             // Prevent default dragging of selected content
+                             event.preventDefault();
+                             startX = event.pageX - x;
+                             startY = event.pageY - y;
+                             $document.on('mousemove', mousemove);
+                             $document.on('mouseup', mouseup);
+                         });
+ 
+                         function mousemove(event) {
+                             y = event.pageY - startY;
+                             x = event.pageX - startX;
+                             dialogWrapper.css({
+                                 top: y + 'px',
+                                 left: x + 'px'
+                             });
+                         }
+ 
+                         function mouseup() {
+                             $document.unbind('mousemove', mousemove);
+                             $document.unbind('mouseup', mouseup);
+                         }
+                     }
+                 };
+             }
+         ]);
+       </script> 
+       <script>
+         function openModal(){
+        console.log("testing")
+    }
+       </script>
+      
+       </body>
+ </html>
+  
