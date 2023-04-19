@@ -44,93 +44,44 @@
       position: relative;
     }
 
-    /* #suggestion {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            border: 1px solid gray;
-        } */
   </style>
 </head>
 
 <body>
-  <!-- <label for="search">Search:</label>
-    <input type="text" id="search" onkeyup="autoSuggestion(this.value)">
-    <div id="suggestion"></div> -->
+ 
   <label for="search">Search:</label>
   <input type="text" id="search" onkeyup="autoSuggestion(this.value)">
   <div id="suggestion" style="display: none;"></div>
   <script>
-    var userDetails=[
-                      {"id":"10","nameoftheFilm":"captain america"},
-                      {"id":"11","nameoftheFilm":"dr.strange"}
-                    ]
     var suggestion = ["antman", "batman", "captain america", "dr.strange", "egoplanet", "falcon", "ghostrider",
       "hawkeye", "ironman", "juggernut", "kang", "loki", "magneto", "nebula", "oli", "Photon",
       "Quasimodo", "Rocket Raccoon", "spiderman", "thor", "Ultron", "Valkyrie", "Wong", "X-Men",
       "Yondu", "Zeus", "kang2", "M N Service Provider", "Dhruva Adithya"];
-    //     function autoSuggestion(str) {
-    //         if (str.length === 0) {
-    //             document.getElementById("suggestion").innerHTML = "";
-    //             document.getElementById("suggestion").style.display = "none";
-    //         }
-    //         else {
-    //             var matches = [];
-    //             for (var i = 0; i < suggestion.length; i++) {
-    //                 if (suggestion[i].toLowerCase().includes(str.toLowerCase())) {
-    //                     matches.push(suggestion[i])
-    //                 }
-    //             }
-    //             if (matches.length === 0) {
-    //                 document.getElementById("suggestion").innerHTML = "";
-    //                 document.getElementById("suggestion").style.display = "none";
-    //             }
-    //             else {
-    //                 var output = "";
-    //                 for (var j = 0; j < matches.length; j++) {
-    //                     output += "<p onclick='fillSuggestion(\"" + matches[j] + "\")'>" + matches[j] + "</p>";
-    //                 }
-    //                 document.getElementById("suggestion").innerHTML = output;
-    //                 document.getElementById("suggestion").style.display = "block";
-    //             }
-    //         }
-    //    }
-    //  
-    // function autoSuggestion(str) {
-    //   if (str.trim() === "") {
-    //     document.getElementById("suggestion").innerHTML = "";
-    //     document.getElementById("suggestion").style.display = "none";
-    //   } else {
-    //     var searchTerms = str.toLowerCase().split(" ");
-    //     var matches = [];
-    //     for (var i = 0; i < suggestion.length; i++) {
-    //       var suggestionText = suggestion[i].toLowerCase();
-    //       var isMatch = true;
-    //       for (var j = 0; j < searchTerms.length; j++) {
-    //         if (suggestionText.indexOf(searchTerms[j]) === -1) {
-    //           isMatch = false;
-    //           break;
-    //         }
-    //       }
-    //       if (isMatch) {
-    //         matches.push(suggestion[i]);
-    //       }
-    //     }
-    //     if (matches.length === 0) {
-    //       document.getElementById("suggestion").innerHTML = "";
-    //       document.getElementById("suggestion").style.display = "none";
-    //     } else {
-    //       var output = "";
-    //       for (var k = 0; k < matches.length; k++) {
-    //         output += "<p onclick='fillSuggestion(\"" + matches[k] + "\")'>" + matches[k] + "</p>";
-    //       }
-    //       document.getElementById("suggestion").innerHTML = output;
-    //       document.getElementById("suggestion").style.display = "block";
-    //     }
-    //   }
-    // }
+    
+      var suggestion = [
+            { "id": "101", "nameofCars": "antman" },
+            { "id": "102", "nameofCars": "batman" },
+            { "id": "103", "nameofCars": "captain america" },
+            { "id": "104", "nameofCars": "dr.strange" },
+            { "id": "106", "nameofCars": "egoplanet" },
+            { "id": "107", "nameofCars": "ghostrider" },
+            { "id": "108", "nameofCars": "hawkeye" },
+            { "id": "109", "nameofCars": "ironman" },
+            { "id": "110", "nameofCars": "juggernut" },
+            { "id": "111", "nameofCars": "kang" },
+            { "id": "112", "nameofCars": "loki" },
+            { "id": "113", "nameofCars": "magneto" },
+            { "id": "114", "nameofCars": "nebula" },
+            { "id": "114", "nameofCars": "oli" },
+            { "id": "114", "nameofCars": "Photon" },
+            { "id": "114", "nameofCars": "Quasimodo" },
+            { "id": "114", "nameofCars": "Rocket Raccoon" },
+            { "id": "114", "nameofCars": "spiderman" },
+            { "id": "114", "nameofCars": "thor" },
+            { "id": "114", "nameofCars": "Ultron" },{ "id": "114", "nameofCars": "Valkyrie" },
+            { "id": "114", "nameofCars": "Wong" },{ "id": "114", "nameofCars": "X-Men" },
+            { "id": "114", "nameofCars": "Yondu" },{ "id": "114", "nameofCars": "Zeus" },
+        ];  
     function autoSuggestion(str) {
     if (str.trim() === "") {
       document.getElementById("suggestion").innerHTML = "";

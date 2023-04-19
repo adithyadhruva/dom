@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AddsuggestionToDB</title>
+  <style>
+    #search {
+      width: 300px;
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #suggestion {
+      position: absolute;
+      z-index: 1;
+      align-content: center;
+      background-color: #f9f9f9;
+      min-width: 300px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    #suggestion p {
+      padding: 10px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    #suggestion p:hover {
+      background-color: #f1f1f1;
+    }
+
+    #search {
+      position: relative;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="selectedSuggestion"></div>
+  <label for="search">Search:</label>
+  <input type="text" id="search" onkeyup="autoSuggestion(this.value)">
+  <div id="suggestion" style="display: none;"></div>
+  <script>
+    var suggestion = [
+      { "id": "101", "nameofheros": "antman" }, { "id": "102", "nameofheros": "batman" },
+      { "id": "103", "nameofheros": "captain america" }, { "id": "104", "nameofheros": "dr.strange" },
+      { "id": "106", "nameofheros": "egoplanet" }, { "id": "107", "nameofheros": "ghostrider" },
+      { "id": "108", "nameofheros": "hawkeye" }, { "id": "109", "nameofheros": "ironman" },
+      { "id": "110", "nameofheros": "juggernut" }, { "id": "111", "nameofheros": "kang" },
+      { "id": "112", "nameofheros": "loki" }, { "id": "113", "nameofheros": "magneto" },
+      { "id": "114", "nameofheros": "nebula" }, { "id": "115", "nameofheros": "oli" },
+      { "id": "116", "nameofheros": "Photon" }, { "id": "117", "nameofheros": "Quasimodo" },
+      { "id": "118", "nameofheros": "Rocket Raccoon" }, { "id": "119", "nameofheros": "spiderman" },
+      { "id": "120", "nameofheros": "thor" }, { "id": "121", "nameofheros": "Ultron" },
+      { "id": "122", "nameofheros": "Valkyrie" }, { "id": "123", "nameofheros": "Wong" },
+      { "id": "124", "nameofheros": "X-Men" }, { "id": "125", "nameofheros": "Yondu" },
+      { "id": "126", "nameofheros": "Zeus" },
+    ];
+    var selectedNameIds = ["126", "114", "110"]
+    function autoSuggestion(str) {
+      if (str.trim() === "") {
+        document.getElementById("suggestion").innerHTML = "";
+        document.getElementById("suggestion").style.display = "none";
+      } else {
+        var searchTerms = str.toLowerCase().split(" ");
+        var matches = [];
+        for (var i = 0; i < suggestion.length; i++) {
+          var suggestionText = suggestion[i].nameofheros.toLowerCase();
+          var isMatch = false;
+          for (var j = 0; j < searchTerms.length; j++) {
+            if (suggestionText.indexOf(searchTerms[j]) !== -1 || suggestionText.includes(searchTerms[j])) {
+              isMatch = true;
+              break;
+            }
+          }
+          if (isMatch) {
+            matches.push({ key: i, value: suggestion[i] });
+          }
+        }
+        if (matches.length === 0) {
+          document.getElementById("suggestion").innerHTML = "";
+          document.getElementById("suggestion").style.display = "none";
+        } else {
+          var output = "";
+          for (var k = 0; k < matches.length; k++) {
+            output += "<p onclick='fillSuggestion(\"" + matches[k].value.nameofheros + "\", " + matches[k].key + ")'>" + matches[k].value.nameofheros + "</p>";
+          }
+          document.getElementById("suggestion").innerHTML = output;
+          document.getElementById("suggestion").style.display = "block";
+        }
+      }
+    }
+    function fillSuggestion(value, key) {
+      if (selectedNameIds.includes(suggestion[key].id)) {
+        alert("This hero has already been selected");
+        return;
+      }
+      var selectedhero = suggestion[key];
+      if (selectedhero) {
+        selectedNameIds.push(selectedhero.id);
+        var selectedSuggestionDiv = document.getElementById("selectedSuggestion");
+        selectedSuggestionDiv.innerHTML = selectedNameIds
+          .map((id) => {
+            var hero = suggestion.find((h) => h.id === id);
+            return hero ? hero.nameofheros : "";
+          }).join("<br>");
+      }
+      console.log("selected ids:", selectedNameIds);
+      document.getElementById("search").value = "";
+      document.getElementById("suggestion").innerHTML = "";
+      document.getElementById("suggestion").style.display = "none";
+    }
+
+  </script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      // add default values
+      selectedNameIds.forEach((id) => {
+        var hero = suggestion.find((h) => h.id === id);
+        if (hero) {
+          var selectedSuggestionDiv = document.getElementById("selectedSuggestion");
+          selectedSuggestionDiv.innerHTML += hero.nameofheros + "<br>";
+        }
+      });
+    }, false);
+
+  </script>
+
+</body>
+
+</html>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>demo</title>
+    <title>Multiple suggestion</title>
     <style>
         #search {
             width: 300px;
@@ -100,20 +100,7 @@
                 }
             }
         }
-//         function fillcarDetails(value, key) {
-//     var selectedCar = carDetails[key];
-//     if (selectedCar) {
-//         console.log("car id:", selectedCar.id);
-//     }
-//     var currentValue = document.getElementById("search").value.trim();
-//     var newValues = currentValue ? currentValue.split(",") : [];
-//     newValues.pop(); // remove the last value from the array
-//     newValues.push(value);
-//     document.getElementById("search").value = newValues.join(", ");
-//     document.getElementById("carDetails").innerHTML = "";
-//     document.getElementById("carDetails").style.display = "none";
-// }
-
+         
         function fillcarDetails(value, key) {
             var selectedCar = carDetails[key];
             if (selectedCar) {
@@ -124,20 +111,23 @@
                 document.getElementById("search").value = value;
             } else {
                 if (value != "") {
-                    if (currentValue.trim() === "") {
+                    var currentValue = document.getElementById("search").value.trim();
+                    if (currentValue === "") {
                         document.getElementById("search").value = value;
-                        document.getElementById("carDetails").innerHTML = "";
-                    } else {
-                        
-                       document.getElementById("search").value = currentValue+" "+value;
-                      
+                    } 
+                    else {
+                        var lastSpaceIndex = currentValue.lastIndexOf(" ");
+                        var newSearchValue = currentValue.substring(0, lastSpaceIndex + 1) + value;
+                        document.getElementById("search").value = newSearchValue;
                     }
                 }
             }
             document.getElementById("carDetails").innerHTML = "";
             document.getElementById("carDetails").style.display = "none";
+            document.getElementById("search").currentValue = "";
         }
     </script>
+    
 </body>
 
 </html>

@@ -1,0 +1,113 @@
+<style>
+    #search-label {
+      display: block;
+      margin-bottom: 10px;
+    }
+  
+    .selected-suggestion {
+      display: block;
+      margin-bottom: 10px;
+    }
+    #search {
+      width: 300px;
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #suggestion {
+      position: absolute;
+      z-index: 1;
+      align-content: center;
+      background-color: #f9f9f9;
+      min-width: 300px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    #suggestion p {
+      padding: 10px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    #suggestion p:hover {
+      background-color: #f1f1f1;
+    }
+
+    #search {
+      position: relative;
+    }
+
+  </style>
+<body>
+    
+
+    <div id="selectedSuggestion"></div>
+<label for="search">Search:</label>
+<input type="text" id="search" onkeyup="autoSuggestion(this.value)">
+<div id="suggestion" style="display: none;"></div>
+
+<script>
+
+  var suggestion = [
+    "antman", "batman", "captain america", "dr.strange", "egoplanet", "falcon", "ghostrider",
+    "hawkeye", "ironman", "juggernut", "kang", "loki", "magneto", "nebula", "oli", "Photon",
+    "Quasimodo", "Rocket Raccoon", "spiderman", "thor", "Ultron", "Valkyrie", "Wong", "X-Men",
+    "Yondu", "Zeus", "kang2", "M N Service Provider", "Dhruva Adithya"
+  ];
+  
+  function autoSuggestion(str) {
+    if (str.trim() === "") {
+      document.getElementById("suggestion").innerHTML = "";
+      document.getElementById("suggestion").style.display = "none";
+    } else {
+      var searchTerms = str.toLowerCase().split(" ");
+      var matches = [];
+      for (var i = 0; i < suggestion.length; i++) {
+        var suggestionText = suggestion[i].toLowerCase();
+        var isMatch = false;
+        for (var j = 0; j < searchTerms.length; j++) {
+          if (suggestionText.indexOf(searchTerms[j]) !== -1 || suggestionText.includes(searchTerms[j])) {
+            isMatch = true;
+            break;
+          }
+        }
+        if (isMatch) {
+          matches.push({ key: i, value: suggestion[i] });
+        }
+      }
+      if (matches.length === 0) {
+        document.getElementById("suggestion").innerHTML = "";
+        document.getElementById("suggestion").style.display = "none";
+      } else {
+        var output = "";
+        for (var k = 0; k < matches.length; k++) {
+          output += "<p onclick='fillSuggestion(\"" + matches[k].value + "\", " + matches[k].key + ")'>" + matches[k].value + "</p>";
+        }
+        document.getElementById("suggestion").innerHTML = output;
+        document.getElementById("suggestion").style.display = "block";
+      }
+    }
+  }
+
+  function fillSuggestion(value , key) {
+  var selected = document.createElement("div");
+  selected.innerHTML = value;
+  var searchLabel = document.querySelector("label[for='search']");
+  searchLabel.parentNode.insertBefore(selected, searchLabel);
+  document.getElementById("search").value = "";
+  document.getElementById("suggestion").innerHTML = "";
+  document.getElementById("suggestion").style.display = "none";
+}
+</script>
+</body>
+
+
+  
