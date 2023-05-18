@@ -1,0 +1,299 @@
+<!-- //Working Code with Reusable Functionality and Json Data Return -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>custom search and select</title>
+    <style>
+        :root {
+            --primarycolor: #3469ce;
+        }
+
+        button {
+            appearance: button;
+            background-color: var(--primarycolor);
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+            border: 1px solid var(--primarycolor);
+            border-radius: 1rem;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline;
+            font-family: Inter, sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 0.5;
+            margin: 0;
+            padding: .5rem 1rem;
+            text-align: center;
+            text-transform: none;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+        }
+
+        button :focus:not(:focus-visible),
+        button:focus {
+            outline: 0;
+        }
+
+        button :hover {
+            background-color: var(--primarycolor);
+            border-color: var(--primarycolor);
+        }
+
+        button:focus {
+            background-color: var(--primarycolor);
+            border-color: var(--primarycolor);
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        button:active {
+            background-color: var(--primarycolor);
+            background-image: none;
+            border-color: var(--primarycolor);
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+        }
+
+        button:active:focus {
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        button:disabled {
+            background-image: none;
+            box-shadow: none;
+            opacity: .65;
+            pointer-events: none;
+        }
+    </style>
+    <style>
+        .textofcheckbox {
+            color: var(--primarycolor);
+        }
+    </style>
+</head>
+
+<body>
+    <custom-searchandselect-checkbox id="qualification" data-inputdata="listofqualification,uid,label"
+        data-default="uservalues,uid,label" multiselect="false" data-result>
+    </custom-searchandselect-checkbox>
+    <!-- <hr> -->
+    <!-- <custom-searchandselect-checkbox id="movies" data-inputdata="movieNames,id,nameofmovies"
+        data-default="lastmoviecollection,id,nameofmovies" data-result> </custom-searchandselect-checkbox>
+    <hr>
+    <custom-searchandselect-checkbox id="cars" data-inputdata="carNames,code,nameofcar"
+        data-default="lastcarcollection,code,nameofcar" data-result> </custom-searchandselect-checkbox> -->
+    </form>
+
+    <button class="submitbutton" onclick=save()>submit</button>
+    <script>
+        const listofqualification = [
+            { uid: 'qualification-10', label: '10' },
+            { uid: 'qualification-puc', label: 'PUC' },
+            { uid: 'qualification-graduation', label: 'Graduation' },
+            { uid: 'qualification-none', label: 'none' }
+        ];
+
+        const uservalues = [
+            { uid: 'qualification-puc', label: 'PUC' },
+            { uid: 'qualification-graduation', label: 'Graduation' }
+        ];
+
+    </script>
+    <script>
+        const movieNames = [
+            { id: "101", nameofmovies: "antman" },
+            { id: "123", nameofmovies: "Wong" }
+        ];
+
+        const lastmoviecollection = [
+            { id: "123", nameofmovies: "Wong" }
+        ];
+    </script>
+    <script>
+        const carNames = [
+            { code: "nano", nameofcar: "tata" },
+            { code: "thar", nameofcar: "mahindra" }
+        ];
+
+        const lastcarcollection = [
+            { code: "thar", nameofcar: "mahindra" }
+        ];
+    </script>
+
+
+    <script>
+        function getDataResult(id) {
+            return document.getElementById(id).getAttribute("data-result");
+        }
+        function save() {
+            console.log("qualification result: ", getDataResult("qualification"));
+            //console.log("movies result: ", getDataResult("movies"));
+            //console.log("cars result: ", getDataResult("cars"));
+        }
+
+    </script>
+    <script>
+        class CustomSearchAndSelectCheckbox extends HTMLElement {
+            constructor() {
+                super();
+                const template = document.createElement("template");
+                template.innerHTML = `
+                    <div class="selectAll"></div>
+                    <div class="lists"></div>
+                `;
+
+                const styleElement = document.createElement("style");
+                styleElement.textContent = `
+                    .selectAll {
+                        color: var(--primarycolor);
+                    }
+                    .textofcheckbox {
+                        color: var(--primarycolor);
+                        display: flex;
+                        margin: 8px ;
+                    }
+                 `;
+
+                const shadowRoot = this.attachShadow({ mode: "open" });
+                shadowRoot.appendChild(styleElement);
+                const clone = template.content.cloneNode(true);
+                shadowRoot.appendChild(clone);
+
+                //1. ALWAYS WORK LINE BY LINE AND THINK ABOUT THE FLOW. 
+                //2. COMPARE BETWEEN CURRENT STATE VS GOAL
+
+                // read the input element data using attribute and spliting the variables to array
+                // const inputData = this.getAttribute("data-inputdata").split(",")
+                // console.log("User Input Data1:", inputData);
+
+                // const inputData2 = this.getUserKeyValue("data-inputdata");
+                // console.log("User Input Data2 :", inputData2[0].splitdata);
+
+                // const inputData3 = this.getUserKeyValue("data-inputdata")[0].splitdata[0];
+                // console.log("User Input Data3 :", inputData3)
+                // console.log("Content of user Iput Data", eval(inputData3));
+
+                const key_value_data_input = this.getUserKeyValue("data-inputdata")[3].key_for_id;
+                //console.log(key_value_data_input);
+                const data_input_all_content = this.getUserKeyValue("data-inputdata")[1].eval_data;
+                const data_default_selected_content = this.getUserKeyValue("data-default")[1].eval_data;
+                 //console.log("data_default_selected_content", data_default_selected_content )
+                const data_result_selectedValues = data_default_selected_content.map(cb => cb[key_value_data_input]);
+                //console.log("function",data_result_selectedValues)
+                const myJsonString2 = JSON.stringify(data_result_selectedValues);
+                this.setAttribute("data-result", myJsonString2);
+
+                // Adding Select All Menu
+                var newSeletall = this.shadowRoot.querySelector(".selectAll");
+                newSeletall.innerHTML = `<label class="selectAll"><input type="checkbox" onclick="this.getRootNode().host.checkAll(this)">Select All</label>`;
+
+                // Adding User Input Lists
+                var newlist = this.shadowRoot.querySelector(".lists");
+                newlist.innerHTML = this.addElements();
+
+            }
+            getUserKeyValue(userinputattribute) {
+                //1. RETURN RESULT AS TO BE ALWAYS IN JSON FOMRAT WITH ARRAY. SO LATER WE WANTED TO IMPROVE OR ADD MORE WE CAN CONTINUE WITHOUT CHANGE THE CODE IN FRONT END / ANYWHERE ELSE
+
+                var datareturn = {}
+                datareturn = [
+                    { "splitdata": this.getAttribute(userinputattribute).split(",") },
+                    { "eval_data": eval(this.getAttribute(userinputattribute).split(",")[0]) },
+                    { "key_for_variable": this.getAttribute(userinputattribute).split(",")[0] },
+                    { "key_for_id": this.getAttribute(userinputattribute).split(",")[1] },
+                    { "key_for_label": this.getAttribute(userinputattribute).split(",")[2] }
+                ]
+                return datareturn
+            }
+
+
+            addElements() {
+                var finalresult = '';
+
+                // FOR DHRUV.... 
+                //1. ALWAYS WORK LINE BY LINE AND THINK ABOUT THE FLOW. 
+                //2. COMPARE BETWEEN CURRENT STATE VS GOAL
+
+                const key_value_data_input = this.getUserKeyValue("data-inputdata")[0].splitdata
+                const data_input_all_content = this.getUserKeyValue("data-inputdata")[1].eval_data
+                const data_default_selected_content = this.getUserKeyValue("data-default")[1].eval_data
+
+                for (let i = 0; i < data_input_all_content.length; i++) {
+                    const checkbox = data_input_all_content[i];
+                    const checked = data_default_selected_content.some(item => item[key_value_data_input[1]] === checkbox[key_value_data_input[1]]) ? 'checked' : '';
+                    finalresult += '<label class="textofcheckbox"><input type="checkbox" id="' + checkbox[key_value_data_input[1]] + '" value="' + checkbox[key_value_data_input[2]] + '" ' + checked + ' onclick="this.getRootNode().host.updateSearch(this)">' + checkbox[key_value_data_input[2]] + '</label>';
+                }
+
+                return finalresult;
+            }
+
+            updateSearch(_checkbox) {
+                const key_value = this.getUserKeyValue("data-inputdata")[3].key_for_id;
+                console.log(key_value)
+                const key_value_data_input = this.getUserKeyValue("data-inputdata")[1].eval_data;
+                const data_input_all_content = this.getUserKeyValue("data-inputdata")[1].eval_data;
+                const data_default_selected_content = this.getUserKeyValue("data-default")[1].eval_data;
+
+
+                const shadowRoot = this.shadowRoot;
+                const checkboxContainer = shadowRoot.querySelector('.lists');
+                const selectedCheckboxes = checkboxContainer.querySelectorAll('.textofcheckbox input:checked');
+                selectedCheckboxes.forEach(selectedCheckbox => {
+                    selectedCheckbox.parentNode.classList.add('selected');
+                });
+
+                const unselectedCheckboxes = checkboxContainer.querySelectorAll('.textofcheckbox input:not(:checked)');
+                unselectedCheckboxes.forEach(unselectedCheckbox => {
+                    unselectedCheckbox.parentNode.classList.remove('selected');
+                });
+                console.log("selectedCheckboxes",selectedCheckboxes )
+                const selectedIds = Array.from(selectedCheckboxes).map(cb => cb[key_value]);
+                console.log("selectedIds", selectedIds);
+                const myJsonString = JSON.stringify(selectedIds);
+                console.log(myJsonString);
+                this.setAttribute('data-result', myJsonString);
+                
+                const TotalNoOfRecords = key_value_data_input.length;
+
+                const selectAllCheckbox = shadowRoot.querySelector('.selectAll input[type="checkbox"]');
+                if (selectedCheckboxes.length > 0) {
+                    selectAllCheckbox.style.backgroundColor = 'var(--primarycolor)';
+                } else if (selectedCheckboxes.length === TotalNoOfRecords) {
+                    selectAllCheckbox.style.backgroundColor = '';
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.click();
+                }
+            }
+
+            checkAll(checkbox) {
+                const key_value = this.getUserKeyValue("data-inputdata")[3].key_for_id;
+                //console.log("key_value",key_value)
+
+                //console.log("old checkbox", checkbox)
+                const sR = this.shadowRoot;
+                const selectAllCheckbox = sR.querySelector(".selectAll input[type='checkbox']");
+                //console.log("selectAllCheckbox", selectAllCheckbox)
+                const newcheckbox = sR.querySelectorAll('.lists input[type="checkbox"]');
+                //console.log("new checkbox", newcheckbox)
+                const arrayValues = Array.from(newcheckbox).map(element => element.id);
+                //console.log("nodelist to array",arrayValues);
+                newcheckbox.forEach(cb => {
+                    cb.checked = selectAllCheckbox.checked;
+                    this.updateSearch(cb);
+                });
+            }
+        }
+
+        window.customElements.define("custom-searchandselect-checkbox", CustomSearchAndSelectCheckbox);
+
+    </script>
+</body>
+
+</html>

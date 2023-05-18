@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>custom-searchandselect-checkbox</title>
+  <style>
+     
+    .checkbox label {
+            display: block;
+        }
+
+        .checkbox input[type=checkbox] {
+            margin-right: 5px;
+
+        }
+        .checkbox label {
+          color: red; /* Initial color */
+        }
+        
+      
+    .checkbox label input[type=checkbox] {
+      color: blue;
+    }
+    .checkbox {
+      display: flex;
+      flex-direction: column;
+    }
+    .textofcheckbox {
+      color: #DC143C;
+    }
+    .checkbox label.selected {
+      color: #3F00FF;
+    }
+    .selectAll input[type=checkbox] {
+      position: relative;
+      bottom: -4px;
+      left: 0px;
+      border-radius: 3px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      outline: 0;
+      background: #3469ce;
+      height: 13px;
+      width: 13px;
+      margin: 3px 3px 3px 4px;
+      border: 1px solid grey;
+    }
+    .select-all input[type=checkbox]:after {
+      content: '\\2713';
+      display: none;
+      font-size: 12px;
+      font-weight: bold;
+      color: black;
+      position: absolute;
+      top: -2px;
+      left: 0px;
+    }
+    
+    .select-all input[type=checkbox]:checked:after {
+      display: inline-block;
+    }
+  </style>
+</head>
+<link rel="stylesheet" href="customsearchandselect.css">
+
+<body>
+  <form>
+    <custom-searchandselect-checkbox id="qualification" data-inputdata="listofqualification,id,label"
+      data-default="uservalues,id,label" multiselect="false" data-result>
+    </custom-searchandselect-checkbox>
+
+    <!-- <custom-searchandselect-checkbox id="movies" data-inputdata="movieNames,id,nameofmovies"
+      data-default="lastmoviecollection,id,nameofmovies" data-result> </custom-searchandselect-checkbox>
+
+    <custom-searchandselect-checkbox id="cars" data-inputdata="carNames,id,nameofcar"
+      data-default="lastcarcollection,id,nameofcar" data-result> </custom-searchandselect-checkbox> -->
+  </form>
+
+  <button onclick=save()>submit</button>
+  <script>
+    const listofqualification = [
+      { id: 'qualification-10', label: '10' },
+      { id: 'qualification-puc', label: 'PUC' },
+      { id: 'qualification-graduation', label: 'Graduation' },
+      { id: 'qualification-none', label: 'none' }
+    ];
+
+    const uservalues = [
+      { id: 'qualification-puc', label: 'PUC' },
+      { id: 'qualification-graduation', label: 'Graduation' },
+    ];
+
+  </script>
+  <script>
+    const movieNames = [
+      { id: "101", nameofmovies: "antman" },
+      { id: "123", nameofmovies: "Wong" }
+    ];
+
+    const lastmoviecollection = [
+      { id: "123", nameofmovies: "Wong" }
+    ];
+  </script>
+  <script>
+    const carNames = [
+      { id: "nano", nameofcar: "tata" },
+      { id: "thar", nameofcar: "mahindra" }
+    ];
+
+    const lastcarcollection = [
+    { id: "thar", nameofcar: "mahindra" }
+    ];
+  </script>
+  <script src="./customsearchandselect.js?v=1.1"></script>
+
+  <script>
+    function save() {
+      console.log("qualification result: ", document.querySelector("#qualification").getAttribute("data-result"));
+      //console.log("movies result: ", document.querySelector("#movies").getAttribute("data-result"));
+      //console.log("cars result: ", document.querySelector("#cars").getAttribute("data-result"));
+    }
+  </script>
+
+</body>
+
+</html>

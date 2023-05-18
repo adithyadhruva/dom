@@ -13,7 +13,7 @@ class CustomerDetails extends HTMLElement {
         const clone = template.content.cloneNode(true)
         shadowRoot.append(clone)
     }
-    colorDetails(col) {
+   colorDetails(col) {
         document.getElementById(col.id).style.color = col.getAttribute("data-color-type")
     }
     buttonfunc(bt) {

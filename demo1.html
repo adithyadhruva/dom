@@ -1,81 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=\, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <label for="search">Search:</label>
-<input type="text" id="search" onkeyup="autocarDetails(this.value)">
-<div id="carDetails" style="display: none;"></div>
-<script>
-    var carDetails = [
-        { "id": "101", "nameofCars": "Eagle" },
-        { "id": "102", "nameofCars": "Bugatti" },
-        { "id": "103", "nameofCars": "Honda" },
-        { "id": "104", "nameofCars": "Dartz" },
-        { "id": "106", "nameofCars": "Audi" },
-        { "id": "107", "nameofCars": "Ferrari" },
-        { "id": "108", "nameofCars": "Ford" },
-        { "id": "109", "nameofCars": "Chevrolet" },
-        { "id": "110", "nameofCars": "Hyundai" },
-        { "id": "111", "nameofCars": "Mahindra" },
-        { "id": "112", "nameofCars": "Porsche" },
-        { "id": "113", "nameofCars": "Skoda" },
-        { "id": "114", "nameofCars": "Volkswagen" },
-    ];
-    function autocarDetails(str) {
-        if (str.trim() === "") {
-            document.getElementById("carDetails").innerHTML = "";
-            document.getElementById("carDetails").style.display = "none";
-        } else {
-            var searchTerms = str.toLowerCase().split(" ");
-            var matches = [];
-            for (var i = 0; i < carDetails.length; i++) {
-                var carDetailsText = carDetails[i].nameofCars.toLowerCase();
-                var isMatch = false;
-                for (var j = 0; j < searchTerms.length; j++) {
-                    if (carDetailsText.indexOf(searchTerms[j]) !== -1 || carDetailsText.includes(searchTerms[j])) {
-                        isMatch = true;
-                        break;
-                    }
-                }
-                if (isMatch) {
-                    matches.push({ key: i, value: carDetails[i] });
-                }
-            }
-            if (matches.length === 0) {
+    <input type="text" id="search" onkeyup="autocarDetails(this.value)">
+    <div id="carDetails" style="display: none;"></div>
+    <script>
+        var carDetails = [
+            { "id": "101", "nameofCars": "Eagle" },
+            { "id": "102", "nameofCars": "Bugatti" },
+            { "id": "103", "nameofCars": "Honda" },
+            { "id": "104", "nameofCars": "Dartz" },
+            { "id": "106", "nameofCars": "Audi" },
+            { "id": "107", "nameofCars": "Ferrari" },
+            { "id": "108", "nameofCars": "Ford" },
+            { "id": "109", "nameofCars": "Chevrolet" },
+            { "id": "110", "nameofCars": "Hyundai" },
+            { "id": "111", "nameofCars": "Mahindra" },
+            { "id": "112", "nameofCars": "Porsche" },
+            { "id": "113", "nameofCars": "Skoda" },
+            { "id": "114", "nameofCars": "Volkswagen" },
+        ];
+        function autocarDetails(str) {
+            if (str.trim() === "") {
                 document.getElementById("carDetails").innerHTML = "";
                 document.getElementById("carDetails").style.display = "none";
             } else {
-                var output = "";
-                for (var k = 0; k < matches.length; k++) {
-                    output += "<p><span onclick='fillSuggestion(\"" + matches[k].value.nameofCars + "\")'>" + matches[k].value.nameofCars + "</span><button onclick='removeSuggestion(this)'>x</button></p>";
+                var searchTerms = str.toLowerCase().split(" ");
+                var matches = [];
+                for (var i = 0; i < carDetails.length; i++) {
+                    var carDetailsText = carDetails[i].nameofCars.toLowerCase();
+                    var isMatch = false;
+                    for (var j = 0; j < searchTerms.length; j++) {
+                        if (carDetailsText.indexOf(searchTerms[j]) !== -1 || carDetailsText.includes(searchTerms[j])) {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                    if (isMatch) {
+                        matches.push({ key: i, value: carDetails[i] });
+                    }
                 }
-                document.getElementById("carDetails").innerHTML = output;
-                document.getElementById("carDetails").style.display = "block";
+                if (matches.length === 0) {
+                    document.getElementById("carDetails").innerHTML = "";
+                    document.getElementById("carDetails").style.display = "none";
+                } else {
+                    var output = "";
+                    for (var k = 0; k < matches.length; k++) {
+                        output += "<p><span onclick='fillSuggestion(\"" + matches[k].value.nameofCars + "\")'>" + matches[k].value.nameofCars + "</span><button onclick='removeSuggestion(this)'>x</button></p>";
+                    }
+                    document.getElementById("carDetails").innerHTML = output;
+                    document.getElementById("carDetails").style.display = "block";
+                }
             }
         }
-    }
-    
-    function fillSuggestion(value) {
-        var currentValue = document.getElementById("search").value.trim();
-        var lastSpaceIndex = currentValue.lastIndexOf(" ");
-        var newSearchValue = lastSpaceIndex === -1 ? value : currentValue.substring(0, lastSpaceIndex + 1) + value;
-        document.getElementById("search").value = newSearchValue;
-        document.getElementById("carDetails").innerHTML = "";
-        document.getElementById("carDetails").style.display = "none";
-    }
-    
-    function removeSuggestion(button) {
-        var suggestionText = button.parentNode.querySelector("span").innerText;
-        var searchValue = document.getElementById("search").value;
-        var newValue = searchValue.replace(suggestionText, "").trim();
-       
-    }
-</script>
+
+        function fillSuggestion(value) {
+            var currentValue = document.getElementById("search").value.trim();
+            var lastSpaceIndex = currentValue.lastIndexOf(" ");
+            var newSearchValue = lastSpaceIndex === -1 ? value : currentValue.substring(0, lastSpaceIndex + 1) + value;
+            document.getElementById("search").value = newSearchValue;
+            document.getElementById("carDetails").innerHTML = "";
+            document.getElementById("carDetails").style.display = "none";
+        }
+
+        function removeSuggestion(button) {
+            var suggestionText = button.parentNode.querySelector("span").innerText;
+            var searchValue = document.getElementById("search").value;
+            var newValue = searchValue.replace(suggestionText, "").trim();
+
+        }
+    </script>
 
 </body>
+
 </html>

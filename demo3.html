@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dynamic Checkboxes</title>
+    <style>
+        .checkbox {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .textofcheckbox {
+            color: red;
+        }
+
+        .checkbox label.selected {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="checkbox">
+    </div>
+
+    <script>
+
+        const listofcheckboxes = [
+            { id: 'checkbox-10', label: '10' },
+            { id: 'checkbox-puc', label: 'PUC' },
+            { id: 'checkbox-graduation', label: 'Graduation' },
+            { id: 'checkbox-none', label: 'none' },
+        ];
+        let output = '<label><input type="checkbox" onclick="checkAll(this)">Select All</label>';
+        for (let i = 0; i < listofcheckboxes.length; i++) {
+            const checkbox = listofcheckboxes[i];
+            output += '<label class="textofcheckbox"><input type="checkbox" id="' + checkbox.id + '" value="' + checkbox.label + '" onclick="updateSearch(this)">' + checkbox.label + '</label>';
+        }
+
+        const checkboxContainer = document.querySelector('.checkbox');
+        checkboxContainer.innerHTML = output;
+
+        function updateSearch(checkbox) {
+            const selectedCheckboxes = checkboxContainer.querySelectorAll('input:checked');
+            selectedCheckboxes.forEach(selectedCheckbox => {
+                selectedCheckbox.parentNode.classList.add('selected');
+            });
+
+            const unselectedCheckboxes = checkboxContainer.querySelectorAll('input:not(:checked)');
+            unselectedCheckboxes.forEach(unselectedCheckbox => {
+                unselectedCheckbox.parentNode.classList.remove('selected');
+            });
+        }
+
+        function checkAll(checkbox) {
+            const checkboxes = checkboxContainer.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(childCheckbox => {
+                childCheckbox.checked = checkbox.checked;
+            });
+            updateSearch(checkbox);
+        }
+    </script>
+</body>
+
+</html>

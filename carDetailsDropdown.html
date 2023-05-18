@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> details dropdown </title>
+  <style>
+    /* #select {
+      width: 300px;
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #carDetails {
+      position: absolute;
+      left: 46px;
+      z-index: 1;
+      align-content: center;
+      background-color: #f9f9f9;
+      min-width: 300px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    #carDetails p {
+      padding: 10px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    #carDetails p:hover {
+      background-color: #f1f1f1;
+    }
+
+    #search {
+      position: relative;
+    } */
+    .searchSelectS {
+  position: relative;
+}
+
+.searchSelectS label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.searchSelectS input[type="text"] {
+  width: 300px;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.searchSelectS #carDetails {
+  position: absolute;
+  left: 0px;
+  z-index: 1;
+  align-content: center;
+  background-color: #f9f9f9;
+  min-width: 300px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+}
+
+.searchSelectS #carDetails p {
+  padding: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.searchSelectS #carDetails p:hover {
+  background-color: #f1f1f1;
+}
+/* .searchSelectS #movieNames {
+  position: absolute;
+  left: 0px;
+  z-index: 1;
+  align-content: center;
+  background-color: #f9f9f9;
+  min-width: 300px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+}
+
+.searchSelectS #movieNames p {
+  padding: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.searchSelectS #movieNames p:hover {
+  background-color: #f1f1f1;
+} */
+  </style>
+</head>
+
+<body >
+  <!-- <body onload="setDefaultValue(carDetails,'id','nameofCars')"> -->
+  <div class="searchSelectS">
+    <label for="search">Cars:</label>
+    <input type="text" id="search">
+    <div id="carDetails"></div>
+  </div>
+  <div class="searchSelectS">
+    <label for="select">Movie Names:</label>
+    <input type="text" id="select">
+    <div id="movieNames"></div>
+  </div>
+  <script>
+    var carDetails = [
+      { "id": "101", "nameofCars": "Eagle" },
+      { "id": "102", "nameofCars": "Bugatti" },
+      { "id": "103", "nameofCars": "Honda" },
+      { "id": "104", "nameofCars": "Dartz" },
+      { "id": "106", "nameofCars": "Audi" },
+      { "id": "107", "nameofCars": "Ferrari" },
+      { "id": "108", "nameofCars": "Ford" },
+      { "id": "109", "nameofCars": "Chevrolet" },
+      { "id": "110", "nameofCars": "Hyundai" },
+      { "id": "111", "nameofCars": "Mahindra" },
+      { "id": "112", "nameofCars": "Porsche" },
+      { "id": "113", "nameofCars": "Skoda" },
+      { "id": "114", "nameofCars": "Volkswagen" },
+    ];
+    function setDefaultValue(carDetails,id,nameofCars){
+
+    }
+
+    window.addEventListener("DOMContentLoaded", function (xnames=carDetails ,id=111,values="Mahindra") {
+      var output = '<label><input type="checkbox" onclick="selectAll(this)">Select All</label><br>';
+      for (var i = 0; i < xnames.length; i++) {
+        output += '<label><input type="checkbox" name="car" value="' + xnames[i].values + '" onclick="updateSearch(this)">' + xnames[i].values + '</label><br>';
+      }
+      document.getElementById("carDetails").innerHTML = output;
+    });
+
+    function selectAll(checkbox) {
+      var checkboxes = document.getElementsByName("car");
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = checkbox.checked;
+      }
+      updateSearch();
+    }
+
+    function updateSearch() {
+      var searchBox = document.getElementById("search");
+      var searchTerms = [];
+      var checkboxes = document.getElementsByName("car");
+      for (var i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked) {
+          searchTerms.push(checkboxes[i].value);
+        }
+      }
+      searchBox.value = searchTerms.join(" ");
+    }
+
+    var searchBox = document.getElementById("search");
+    searchBox.addEventListener("click", function () {
+      document.getElementById("carDetails").style.display = "block";
+    });
+    
+    document.addEventListener("click", function (event) {
+      var target = event.target;
+      if (target != searchBox && target.parentNode != document.getElementById("carDetails")) {
+        document.getElementById("carDetails").style.display = "none";
+      }
+    });
+    // //Movie Names
+    var movieNames = [
+      { "id": "101", "nameofmovies": "antman" },
+      { "id": "102", "nameofmovies": "batman" },
+      { "id": "103", "nameofmovies": "captain america" },
+      { "id": "104", "nameofmovies": "dr.strange" },
+      { "id": "106", "nameofmovies": "egoplanet" },
+      { "id": "107", "nameofmovies": "ghostrider" },
+      { "id": "108", "nameofmovies": "hawkeye" },
+      { "id": "109", "nameofmovies": "ironman" },
+      { "id": "110", "nameofmovies": "juggernut" },
+      { "id": "111", "nameofmovies": "kang" },
+      { "id": "112", "nameofmovies": "loki" },
+      { "id": "113", "nameofmovies": "magneto" },
+      { "id": "114", "nameofmovies": "nebula" },
+      { "id": "114", "nameofmovies": "oli" },
+      { "id": "114", "nameofmovies": "Photon" },
+      { "id": "114", "nameofmovies": "Quasimodo" },
+      { "id": "114", "nameofmovies": "Rocket Raccoon" },
+      { "id": "114", "nameofmovies": "spiderman" },
+      { "id": "114", "nameofmovies": "thor" },
+      { "id": "114", "nameofmovies": "Ultron" }, { "id": "114", "nameofmovies": "Valkyrie" },
+      { "id": "114", "nameofmovies": "Wong" }, { "id": "114", "nameofmovies": "X-Men" },
+      { "id": "114", "nameofmovies": "Yondu" }, { "id": "114", "nameofmovies": "Zeus" },
+    ];
+    // window.addEventListener("DOMContentLoaded", function () {
+    //   var output = '<label><input type="checkbox" onclick="selectAll(this)">Select All</label><br>';
+    //   for (var i = 0; i < movieNames.length; i++) {
+    //     output += '<label><input type="checkbox" name="movie" value="' + movieNames[i].nameofmovies + '" onclick="updateSearch(this)">' + movieNames[i].nameofmovies + '</label><br>';
+    //   }
+    //   document.getElementById("movieNames").innerHTML = output;
+    // });
+
+    // function selectAll(checkbox) {
+    //   var checkboxes = document.getElementsByName("movie");
+    //   for (var i = 0; i < checkboxes.length; i++) {
+    //     checkboxes[i].checked = checkbox.checked;
+    //   }
+    //   updateSearch();
+    // }
+
+    // function updateSearch() {
+    //   var searchBox = document.getElementById("select");
+    //   var searchTerms = [];
+    //   var checkboxes = document.getElementsByName("movie");
+    //   for (var i = 0; i < checkboxes.length; i++) {
+    //     if (checkboxes[i].checked) {
+    //       searchTerms.push(checkboxes[i].value);
+    //     }
+    //   }
+    //   searchBox.value = searchTerms.join(" ");
+    // }
+
+    // var searchBox = document.getElementById("select");
+    // searchBox.addEventListener("click", function () {
+    //   document.getElementById("movieNames").style.display = "block";
+    // });
+
+    // document.addEventListener("click", function (event) {
+    //   var target = event.target;
+    //   if (target != searchBox && target.parentNode != document.getElementById("movieNames")) {
+    //     document.getElementById("movieNames").style.display = "none";
+    //   }
+    // });
+
+  </script>
+</body>
+
+</html>

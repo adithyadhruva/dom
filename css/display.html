@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .qualification {
+            display: flex;
+            flex-direction: column;
+
+        }
+        .textofchecbox {
+            color: brown;
+        }
+        .qualification label.selected {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="qualification">
+        <label class="textofchecbox">
+            <input type="checkbox">10
+        </label>
+        <label class="textofchecbox">
+            <input type="checkbox" class="textofchecbox">puc
+        </label>
+        <label class="textofchecbox">
+            <input type="checkbox" class="textofchecbox">graduation
+        </label>
+    </div>
+    <script>
+        const checkboxes = document.querySelectorAll('.qualification input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                console.log(checkbox)
+                if (checkbox.checked) {
+                    checkbox.parentNode.classList.add('selected')
+                }
+                else {
+                    checkbox.parentNode.classList.remove('selected')
+                }
+            });
+        });
+
+    </script>
+
+</body>
+
+</html>

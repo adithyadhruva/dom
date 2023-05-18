@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SearchandSelect</title>
+    <style>
+        .checkbox label {
+            display: block;
+        }
+
+        .checkbox input[type=checkbox] {
+            margin-right: 5px;
+
+        }
+        .checkbox label {
+  color: red; /* Initial color */
+}
+
+.checkbox .lists input[type="checkbox"]:checked + label,
+.checkbox .selectAll input[type="checkbox"]:checked ~ .lists label {
+  color: blue; /* Color when checkboxes are checked */
+}
+
+        
+    </style>
+</head>
+
+<body>
+
+    <div class="checkbox" >
+        <div class="selectAll">
+            <label><input type="checkbox">Select All</label>
+        </div>
+        <div class="lists"></div>
+    </div>
+
+    <script>
+        let test1 =  document.querySelector('.checkbox');
+        console.log(test1);
+        let test2 =  document.querySelector('.checkbox').querySelector(".selectAll");
+        console.log(test2);
+        let listofcheckboxes = document.querySelector('.checkbox').querySelector(".lists");
+        listofcheckboxes.innerHTML=`
+            <label><input type="checkbox">10</label>
+            <label><input type="checkbox">PUC</label>
+            <label><input type="checkbox">Graduation</label>
+            <label><input type="checkbox">none</label>
+        `
+        let selectAllCheckbox = document.querySelector('.selectAll input[type="checkbox"]');
+        let checkboxes = document.querySelectorAll('.checkbox input[type="checkbox"]');
+
+selectAllCheckbox.addEventListener('change', function() {
+  for (let i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].checked = this.checked;
+  }
+});
+   
+const labels = document.querySelectorAll('.checkbox label');
+
+selectAllCheckbox.addEventListener('change', function() {
+  const color = this.checked ? 'blue' : 'red';
+  for (let i = 0; i < labels.length; i++) {
+    labels[i].style.color = color;
+    checkboxes[i].checked = this.checked;
+  }
+});
+
+for (let i = 0; i < checkboxes.length; i++) {
+  checkboxes[i].addEventListener('change', function() {
+    labels[i].style.color = this.checked ? 'blue' : 'red';
+    selectAllCheckbox.checked = [...checkboxes].every(checkbox => checkbox.checked);
+  });
+}
+
+    </script>
+    <script>
+   
+
+    </script>
+
+</body>
+
+</html>

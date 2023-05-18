@@ -1,133 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiple suggestion</title>
-    <style>
-        #search {
-            width: 300px;
-            padding: 12px 20px;
-            margin: 8px 0;
-            box-sizing: border-box;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
+  <style>
+    .searchSelectS {
+  position: relative;
+}
 
-        #carDetails {
-            position: absolute;
-            z-index: 1;
-            align-content: center;
-            background-color: #f9f9f9;
-            min-width: 300px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-        }
+.searchSelectS label {
+  display: block;
+  margin-bottom: 5px;
+}
 
-        #carDetails p {
-            padding: 10px;
-            margin: 0;
-            cursor: pointer;
-        }
+.searchSelectS input[type="text"] {
+  width: 300px;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
 
-        #carDetails p:hover {
-            background-color: #f1f1f1;
-        }
+.searchSelectS #carDetails {
+  position: absolute;
+  left: 0px;
+  z-index: 1;
+  align-content: center;
+  background-color: #f9f9f9;
+  min-width: 300px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+}
 
-        #search {
-            position: relative;
-        }
-    </style>
+.searchSelectS #carDetails p {
+  padding: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.searchSelectS #carDetails p:hover {
+  background-color: #f1f1f1;
+}
+
+  </style>
 
 </head>
 
 <body>
-    <label for="search">Search:</label>
-    <input type="text" id="search" onkeyup="autocarDetails(this.value)">
-    <div id="carDetails" style="display: none;"></div>
-    <script>
-        var carDetails = [
-            { "id": "101", "nameofCars": "Eagle" },
-            { "id": "102", "nameofCars": "Bugatti" },
-            { "id": "103", "nameofCars": "Honda" },
-            { "id": "104", "nameofCars": "Dartz" },
-            { "id": "106", "nameofCars": "Audi" },
-            { "id": "107", "nameofCars": "Ferrari" },
-            { "id": "108", "nameofCars": "Ford" },
-            { "id": "109", "nameofCars": "Chevrolet" },
-            { "id": "110", "nameofCars": "Hyundai" },
-            { "id": "111", "nameofCars": "Mahindra" },
-            { "id": "112", "nameofCars": "Porsche" },
-            { "id": "113", "nameofCars": "Skoda" },
-            { "id": "114", "nameofCars": "Volkswagen" },
-        ];
-        function autocarDetails(str) {
-            if (str.trim() === "") {
-                document.getElementById("carDetails").innerHTML = "";
-                document.getElementById("carDetails").style.display = "none";
-            } else {
-                var searchTerms = str.toLowerCase().split(" ");
-                var matches = [];
-                for (var i = 0; i < carDetails.length; i++) {
-                    var carDetailsText = carDetails[i].nameofCars.toLowerCase();
-                    var isMatch = false;
-                    for (var j = 0; j < searchTerms.length; j++) {
-                        if (carDetailsText.indexOf(searchTerms[j]) !== -1 || carDetailsText.includes(searchTerms[j])) {
-                            isMatch = true;
-                            break;
-                        }
-                    }
-                    if (isMatch) {
-                        matches.push({ key: i, value: carDetails[i] });
-                    }
-                }
-                if (matches.length === 0) {
-                    document.getElementById("carDetails").innerHTML = "";
-                    document.getElementById("carDetails").style.display = "none";
-                } else {
-                    var output = "";
-                    for (var k = 0; k < matches.length; k++) {
-                        output += "<p onclick='fillcarDetails(\"" + matches[k].value.nameofCars + "\", " + matches[k].key + ")'>" + matches[k].value.nameofCars + "</p>";
-                    }
-                    document.getElementById("carDetails").innerHTML = output;
-                    document.getElementById("carDetails").style.display = "block";
-                }
-            }
-        }
-         
-        function fillcarDetails(value, key) {
-            var selectedCar = carDetails[key];
-            if (selectedCar) {
-                console.log(" car id:", selectedCar.id);
-            }
-            var currentValue = document.getElementById("search").value;
-            if (currentValue.trim() === "") {
-                document.getElementById("search").value = value;
-            } else {
-                if (value != "") {
-                    var currentValue = document.getElementById("search").value.trim();
-                    if (currentValue === "") {
-                        document.getElementById("search").value = value;
-                    } 
-                    else {
-                        var lastSpaceIndex = currentValue.lastIndexOf(" ");
-                        var newSearchValue = currentValue.substring(0, lastSpaceIndex + 1) + value;
-                        document.getElementById("search").value = newSearchValue;
-                    }
-                }
-            }
-            document.getElementById("carDetails").innerHTML = "";
-            document.getElementById("carDetails").style.display = "none";
-            document.getElementById("search").currentValue = "";
-        }
-    </script>
-    
-</body>
+  <div class="searchSelectS">
+    <label for="search">Cars:</label>
+    <input type="text" id="search">
+    <div id="carDetails"></div>
+  </div>
+  <!-- <div class="movieNames">
+     <label for="search">Movie Names:</label>
+     <input type="text" >
+     <div id="movieNames" ></div>
+  </div> -->
+  <script>
+    var carDetails = [
+      { "id": "101", "nameofCars": "Eagle" },
+      { "id": "102", "nameofCars": "Bugatti" },
+      { "id": "103", "nameofCars": "Honda" },
+      { "id": "104", "nameofCars": "Dartz" },
+      { "id": "106", "nameofCars": "Audi" },
+      { "id": "107", "nameofCars": "Ferrari" },
+      { "id": "108", "nameofCars": "Ford" },
+      { "id": "109", "nameofCars": "Chevrolet" },
+      { "id": "110", "nameofCars": "Hyundai" },
+      { "id": "111", "nameofCars": "Mahindra" },
+      { "id": "112", "nameofCars": "Porsche" },
+      { "id": "113", "nameofCars": "Skoda" },
+      { "id": "114", "nameofCars": "Volkswagen" }
+    ];
 
+    window.addEventListener("DOMContentLoaded", function () {
+      var output = '<label><input type="checkbox" onclick="selectAll(this)">Select All</label><br>';
+      for (var i = 0; i < carDetails.length; i++) {
+        output += '<label><input type="checkbox" name="car" value="' + carDetails[i].nameofCars + '" onclick="updateSearch(this)">' + carDetails[i].nameofCars + '</label><br>';
+      }
+      document.getElementById("carDetails").innerHTML = output;
+    });
+
+    function selectAll(checkbox) {
+  var checkboxes = document.getElementsByName("car");
+  for (var i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].checked = checkbox.checked;
+  }
+  updateSearch();
+}
+
+function updateSearch() {
+  var searchBox = document.getElementById("search");
+  var searchTerms = [];
+  var checkboxes = document.getElementsByName("car");
+  for (var i = 0; i < checkboxes.length; i++) {
+    if (checkboxes[i].checked) {
+      searchTerms.push(checkboxes[i].value);
+    }
+  }
+  searchBox.value = searchTerms.join(" ");
+}
+
+var searchBox = document.getElementById("search");
+searchBox.addEventListener("click", function() {
+  document.getElementById("carDetails").style.display = "block";
+});
+
+document.addEventListener("click", function(event) {
+  var target = event.target;
+  if (target != searchBox && target.parentNode != document.getElementById("carDetails")) {
+    document.getElementById("carDetails").style.display = "none";
+  }
+});
+</script>
+</body>
 </html>

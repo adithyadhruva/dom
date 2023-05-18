@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1 id="getqualification" data-result="Dhru-testing">hello world</h1>
+
+    <script>
+        const listofqualifications = [
+            { id: 'checkbox-10', label: '10' },
+            { id: 'checkbox-graduation', label: 'Graduation' },
+            { id: 'checkbox-none', label: 'none' }
+        ];
+
+        var myJsonString = JSON.stringify(listofqualifications);
+        console.log(myJsonString);
+
+        var selectedQualification = document.querySelector("#getqualification");
+        console.log("Stage 1 - Default Value passed :", selectedQualification)
+        console.log("Stage 2 - DataAttribute : ", selectedQualification.getAttribute("data-result"));
+        selectedQualification.setAttribute("data-result", myJsonString)
+
+        var NewselectedQualification = document.querySelector("#getqualification").getAttribute("data-result");
+        console.log("last Stage: New Qualification :", NewselectedQualification)
+
+    </script>
+</body>
+
+</html>
