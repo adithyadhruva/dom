@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2custom search and select</title>
+    <style>
+        :root {
+            --primarycolor: #3469ce;
+        }
+
+        button {
+            appearance: button;
+            background-color: var(--primarycolor);
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+            border: 1px solid var(--primarycolor);
+            border-radius: 1rem;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline;
+            font-family: Inter, sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 0.5;
+            margin: 0;
+            padding: .5rem 1rem;
+            text-align: center;
+            text-transform: none;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+        }
+
+        button :focus:not(:focus-visible),
+        button:focus {
+            outline: 0;
+        }
+
+        button :hover {
+            background-color: var(--primarycolor);
+            border-color: var(--primarycolor);
+        }
+
+        button:focus {
+            background-color: var(--primarycolor);
+            border-color: var(--primarycolor);
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        button:active {
+            background-color: var(--primarycolor);
+            background-image: none;
+            border-color: var(--primarycolor);
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+        }
+
+        button:active:focus {
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        button:disabled {
+            background-image: none;
+            box-shadow: none;
+            opacity: .65;
+            pointer-events: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <custom-searchandselect-checkbox id="qualification" data-inputdata="listofqualification,uid,label"
+        data-default="uservalues,uid,label" multiselect="false" data-result>
+    </custom-searchandselect-checkbox>
+    <hr>
+    <custom-searchandselect-checkbox id="movies" data-inputdata="movieNames,id,nameofmovies"
+        data-default="lastmoviecollection,id,nameofmovies" data-result> </custom-searchandselect-checkbox>
+    <hr>
+    <custom-searchandselect-checkbox id="cars" data-inputdata="carNames,code,nameofcar"
+        data-default="lastcarcollection,code,nameofcar" data-result> </custom-searchandselect-checkbox>
+    </form>
+
+    <button class="submitbutton" onclick=save()>submit</button>
+    <script>
+        const listofqualification = [
+            { uid: 'qualification-10', label: '10' },
+            { uid: 'qualification-puc', label: 'PUC' },
+            { uid: 'qualification-graduation', label: 'Graduation' },
+            { uid: 'qualification-none', label: 'none' }
+        ];
+
+        const uservalues = [
+            { uid: 'qualification-puc', label: 'PUC' },
+            { uid: 'qualification-graduation', label: 'Graduation' }
+        ];
+
+    </script>
+    <script>
+        const movieNames = [
+            { id: "101", nameofmovies: "antman" },
+            { id: "123", nameofmovies: "Wong" }
+        ];
+
+        const lastmoviecollection = [
+            { id: "123", nameofmovies: "Wong" }
+        ];
+    </script>
+    <script>
+        const carNames = [
+            { code: "nano", nameofcar: "tata" },
+            { code: "thar", nameofcar: "mahindra" }
+        ];
+
+        const lastcarcollection = [
+            { code: "thar", nameofcar: "mahindra" }
+        ];
+    </script>
+
+    <script>
+        function getDataResult(id) {
+            return document.getElementById(id).getAttribute("data-result");
+        }
+        function save() {
+            console.log("qualification result: ", getDataResult("qualification"));
+            console.log("movies result: ", getDataResult("movies"));
+            console.log("cars result: ", getDataResult("cars"));
+        }
+
+    </script>
+    <script>
+        class CustomSearchAndSelectCheckbox extends HTMLElement {
+            constructor() {
+                super();
+                const template = document.createElement("template");
+                template.innerHTML = `
+                    <div class="selectAll"></div>
+                    <div class="lists"></div>
+                `;
+
+                const styleElement = document.createElement("style");
+                styleElement.textContent = `
+                    .selectAll {
+                        color: var(--primarycolor);
+                        display: inline-flex;
+                        align-items: center;
+                    }
+                    .tickanduntick  {
+                       position: relative;
+                       bottom: -4px;
+                       left: 0px;
+                       top: -1px;
+                       background-color: var(--primarycolor);
+                       border-radius: 3px;
+                       cursor: pointer;
+                       -webkit-appearance: none;
+                       -moz-appearance: none;
+                       appearance: none;
+                       outline: none;
+                       height: 13px;
+                       width: 13px;
+                       margin: 3px 3px 3px 4px;
+                       border: 1.4px solid grey;
+                       vertical-align: middle;
+                       margin-right: 3px;
+                    }  
+                    .textofcheckbox {
+                        color: var(--primarycolor);
+                        display: flex;
+                        margin: 8px ;
+                    }
+                 `;
+
+                const shadowRoot = this.attachShadow({ mode: "open" });
+                shadowRoot.appendChild(styleElement);
+                const clone = template.content.cloneNode(true);
+                shadowRoot.appendChild(clone);
+
+                // const inputData3 = this.getUserKeyValue("data-inputdata")[0].splitdata[0];
+                // console.log("User Input Data3 :", inputData3)
+                // console.log("Content of user Iput Data", eval(inputData3));
+
+                const key_value_data_input = this.getUserKeyValue("data-inputdata")[3].key_for_id;
+                const data_input_all_content = this.getUserKeyValue("data-inputdata")[1].eval_data;
+                const data_default_selected_content = this.getUserKeyValue("data-default")[1].eval_data;
+                const data_result_selectedValues = data_default_selected_content.map(cb => cb[key_value_data_input]);
+                const myJsonString2 = JSON.stringify(data_result_selectedValues);
+                this.setAttribute("data-result", myJsonString2);
+
+                // Adding Select All Menu
+                var newSeletall = this.shadowRoot.querySelector(".selectAll");
+                newSeletall.innerHTML = `<label class="selectAll"><input type="checkbox" onclick="this.getRootNode().host.checkAll(this)">Select All</label>`;
+
+                // Adding User Input Lists
+                var newlist = this.shadowRoot.querySelector(".lists");
+                newlist.innerHTML = this.addElements();
+                this.GetCheckedID();
+
+            }
+            getUserKeyValue(userinputattribute) {
+                var datareturn = {}
+                datareturn = [
+                    { "splitdata": this.getAttribute(userinputattribute).split(",") },
+                    { "eval_data": eval(this.getAttribute(userinputattribute).split(",")[0]) },
+                    { "key_for_variable": this.getAttribute(userinputattribute).split(",")[0] },
+                    { "key_for_id": this.getAttribute(userinputattribute).split(",")[1] },
+                    { "key_for_label": this.getAttribute(userinputattribute).split(",")[2] },
+                    { "no_of_records": eval(this.getAttribute(userinputattribute).split(",")[0]).length }
+
+                ]
+                return datareturn
+            }
+
+            addElements() {
+                var finalresult = '';
+                const key_value_data_input = this.getUserKeyValue("data-inputdata")[0].splitdata
+                const data_input_all_content = this.getUserKeyValue("data-inputdata")[1].eval_data
+                const data_default_selected_content = this.getUserKeyValue("data-default")[1].eval_data
+
+                for (let i = 0; i < data_input_all_content.length; i++) {
+                    const checkbox = data_input_all_content[i];
+                    const checked = data_default_selected_content.some(item => item[key_value_data_input[1]] === checkbox[key_value_data_input[1]]) ? 'checked' : '';
+                    finalresult += '<label class="textofcheckbox"><input type="checkbox" id="' + checkbox[key_value_data_input[1]] + '" value="' + checkbox[key_value_data_input[2]] + '" ' + checked + ' onclick="this.getRootNode().host.GetCheckedID();">' + checkbox[key_value_data_input[2]] + '</label>';
+                }
+                return finalresult;
+            }
+
+            GetCheckedID() {
+                let selectedIDsFromList = [];
+                const New_lists_checkboxes = this.shadowRoot.querySelectorAll('.lists input[type="checkbox"]');
+                New_lists_checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selectedIDsFromList.push(checkbox.id);
+                    }
+                });
+                this.setAttribute('data-result', JSON.stringify(selectedIDsFromList));
+                const lists_checkboxes = this.shadowRoot.querySelectorAll('.lists input[type="checkbox"]');
+                const SelectAllCheckedOrNot = this.shadowRoot.querySelector(".selectAll input[type='checkbox']"); 
+                let SelectedCheckedCount = 0;
+                lists_checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        SelectedCheckedCount++;
+                    }
+                });
+        
+                let totalnoofRecords = this.getUserKeyValue("data-inputdata")[5].no_of_records;
+                if (SelectedCheckedCount === totalnoofRecords) {
+                    SelectAllCheckedOrNot.classList.remove("tickanduntick")
+                    SelectAllCheckedOrNot.checked = true;
+                }
+                if (SelectedCheckedCount > 0 && SelectedCheckedCount < totalnoofRecords) {
+                    SelectAllCheckedOrNot.checked = false;
+                    SelectAllCheckedOrNot.classList.add("tickanduntick")
+                }
+                if (SelectedCheckedCount === 0) {
+                    SelectAllCheckedOrNot.classList.remove("tickanduntick")
+                    SelectAllCheckedOrNot.checked = false;
+                }
+            }
+
+            checkAll(checkbox) {
+                const selectedIDsFromList = [];
+                const SelectAllCheckedOrNot = this.shadowRoot.querySelector(".selectAll input[type='checkbox']"); 
+                const lists_checkboxes = this.shadowRoot.querySelectorAll('.lists input[type="checkbox"]');
+                if (SelectAllCheckedOrNot.checked) {
+                    lists_checkboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                }
+                else {
+                    lists_checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+                this.GetCheckedID();
+            }
+        }
+
+        window.customElements.define("custom-searchandselect-checkbox", CustomSearchAndSelectCheckbox);
+
+    </script>
+</body>
+
+</html>
